@@ -23,7 +23,9 @@ expect << EOF
     expect eof
 EOF
 
-    nohup uwsgi --ini uwsgi.ini --ignore-sigpipe > /dev/null &
+    source /usr/local/py27env/bin/activate
+    nohup python manage.py runserver 0.0.0.0:80 > /dev/null &
+    #nohup uwsgi --ini uwsgi.ini --ignore-sigpipe > /dev/null &
     sstr=$(echo -e $str)
     echo "$sstr"
     sleep 5
@@ -32,8 +34,10 @@ EOF
 
 
 function stop(){
-    pid=`ps aux | grep uwsgi.ini | grep -v grep | awk '{print $2}'`
-    ps aux | grep uwsgi.ini | grep -v grep | awk '{print $2}' | xargs kill -9
+    #pid=`ps aux | grep uwsgi.ini | grep -v grep | awk '{print $2}'`
+    #ps aux | grep uwsgi.ini | grep -v grep | awk '{print $2}' | xargs kill -9
+    pid=`ps aux | grep manage.py | grep -v grep | awk '{print $2}'`
+    ps aux | grep manage.py | grep -v grep | awk '{print $2}' | xargs kill -9
     echo "cmdb $pid killed"
     echo "MW_SUCCESS"
 }
