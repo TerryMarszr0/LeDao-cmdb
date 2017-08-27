@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>CMDB - 登录</title>
+
+    <!-- Bootstrap -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/common.css" rel="stylesheet">
+    <link href="/static/css/login.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/libs/ladda/ladda-themeless.min.css" />
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <!--如果要使用Bootstrap的js插件，必须先调入jQuery -->
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+    <!--包括所有bootstrap的js插件或者可以根据需要使用的js插件调用-->
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/reset.js"></script>
+    <script src="/static/js/comm.js"></script>
+    <script src="/static/libs/ladda/spin.min.js"></script>
+    <script src="/static/libs/ladda/ladda.min.js"></script>
+    </head>
+<body>
+
+<div style="position:absolute; top:45px; right:0; bottom:0; left:0;">
+  <!-- <div class="login-img"><img src="/static/images/login-img.png"/></div> -->
+  <div class="login-box" style="text-align:center;">
+   <h3>用户登录</h3>
+   <!--bootstrap水平表单-->
+
+   <div class="form-horizontal" role="form" >
+     <div class="erro-infor">用户名或密码不正确！</div>
+     <div class="form-group">
+       <input type="text" class="form-control" id="name" placeholder="请输入用户名"/>
+     </div>
+     <div class="form-group">
+       <input type="password" class="form-control" id="password" placeholder="请输入密码"/>
+     </div>
+     <div class="form-group">
+     	<p id="login_error"></p>
+       <button id="login_btn" type="button" class="btn btn-default btn-block ladda-button" data-style="expand-right"><span class="ladda-label"> 登&nbsp;录 </span></button>
+     </div>
+   </div>
+ </div>
+</div>
+<script>
+
+$(function(){
+
+    $('#login_btn').bind('click', function() {
+        userLogin();
+    });
+    $(document).bind('keyup', function(e) {
+        if(e.keyCode == 13) {
+            userLogin();
+        }
+    });
+
+    function userLogin() {
+
+        var name = $.trim($('#name').val()),
+            pwd = $('#password').val();
+
+        if(!name) {
+           $("#name").focus();return false;
+        } else if(!pwd) {
+        	$("#password").focus();return false;
+        } else {
+            var p = getParams();
+            var redirect_url = '/';
+            if (typeof p.redirect_url != 'undefined') {
+                redirect_url = p.redirect_url;
+            }
+
+            var l = Ladda.create( document.querySelector('#login_btn') );
+            l.start();
+            $.post('/home/dologin', {username   :name, password:pwd}, function(data) {
+                if(!data.success) {
+                    Ladda.stopAll();
+                    $('.erro-infor').css('display','block');
+                } else {
+                    Ladda.stopAll();
+                    window.location.replace(redirect_url);
+                }
+            });
+        }
+    }
+})
+</script>
+</body>
+</html>

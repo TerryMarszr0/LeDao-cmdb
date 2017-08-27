@@ -1,0 +1,515 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/upload/fileinput.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/loading.js"></script>
+    <script src="/static/libs/upload/ajaxfileupload.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> <a title="返回" href="" id="go_back" onclick="history.back(-1);"><span class="glyphicon glyphicon-arrow-left"></span></a>&nbsp;&nbsp;新增资产</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+
+                <div class="ibox-content">
+                    <div id="my_tab" style="margin: 10px 0px 10px 0px">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="/host/addhost/">资产录入</a></li>
+                            <li role="presentation"><a href="/host/addaliyun/">阿里云录入</a></li>
+                        </ul>
+                     </div>
+                    <div id="rtn_msg" class="alert alert-success" role="alert" style="display: none"></div>
+                    <form id="addHostForm">
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span><label for="_title" class="control-label">主机名:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" id='hostname' name="hostname" class="form-control required"/>
+                            </div>
+                            <div class="col-lg-4">
+                                <a id="import" href="" data-toggle="modal" data-target="#uploadModal" data-whatever="@mdo">(批量导入)</a>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">阿里云实例ID:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" id='aliyun_id' name="aliyun_id" class="form-control"/>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span><label for="_title" class="control-label">ip:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" id='ip' name="ip" class="form-control required"/>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">服务:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="service_id" name="service_id[]" multiple="multiple" class="form-control">
+                                    <option value="" selected>服务</option>
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">序列号(sn号):</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" id='sn' name="sn" class="form-control"/>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">公网ip:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" id='publicip' name="publicip" class="form-control"/>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">管理ip:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" id='oobip' name="oobip" class="form-control"/>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span><label for="_title" class="control-label">设备类型:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="type" name="type" class="form-control required" style="width: 100%">
+                                    <option value="">---</option>
+                                    {% for type in type %}
+                                    <option value="{{ type.0 }}">{{ type.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span><label for="_title" class="control-label">设备属性:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="attribute" name="attribute" class="form-control required" style="width: 100%">
+                                    <option value="">---</option>
+                                    {% for a in attribute %}
+                                    <option value="{{ a.0 }}">{{ a.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span><label for="_title" class="control-label">所属环境:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="env" name="env" class="form-control required">
+                                    <option value="">---</option>
+                                    {% for e in env %}
+                                    <option value="{{ e.0 }}">{{ e.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span><label for="_title" class="control-label">机房:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="room_id" name="room_id" class="form-control required">
+                                    <option value="">---</option>
+                                    {% for r in rooms %}
+                                    <option value="{{ r.id }}">{{ r.cn_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+                        <!--
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">机柜:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="rack_id" name="rack_id" class="form-control required">
+                                    <option value="0">---</option>
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">U位:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" id='position' name="position" class="form-control"/>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">设备型号:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="model_id" name="model_id" class="form-control">
+                                    <option value="">---</option>
+                                    {% for m in models %}
+                                    <option value="{{ m.id }}">{{ m.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+                      -->
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">系统镜像:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="img_id" name="img_id" class="form-control">
+                                    <option value="">---</option>
+                                    {% for c in img_list %}
+                                    <option value="{{ c.id }}">{{ c.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span><label for="_title" class="control-label">配置:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="conf_id" name="conf_id" class="form-control required">
+                                    <option value="">---</option>
+                                    {% for c in confs %}
+                                    <option value="{{ c.id }}">{{ c.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">主机描述:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" id='description' name="description" class="form-control"/>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span> <label for="_title" class="control-label">费用:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" id='amount' name="amount" value="0" class="form-control required"/>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                            </div>
+                            <div class="col-lg-6">
+                                <button type="button" id="addHostButton" class="btn btn-primary"> 提交 </button>
+                                <button type="reset" class="btn btn-default"> 重置 </button>
+                            </div>
+                        </div>
+                      </div>
+                    </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 上传设备 -->
+<div class="modal fade" id="uploadModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">上传设备</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="uplaodHostForm">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+	            </div>
+	            <div class="col-lg-8"> &nbsp;
+	            </div>
+            </div>
+          </div>
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">上传文件:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="file" id="file" class="btn btn-success" name="file" />
+	            </div>
+            </div>
+          </div>
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+	            </div>
+	            <div class="col-lg-8">
+	            	<a href="/static/file/example.csv">点击下载模板文件</a>&nbsp; ip,type,attribute,room_name,hostname,env为必填字段
+	            </div>
+            </div>
+          </div>
+          <div id="my_grid"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="uploadHostButton" class="btn btn-primary"> 上传 </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 上传设备 -->
+
+{% endblock %}
+
+{% block self_footer_js %}
+<script>
+
+$.get("/api/app/service/?format=json&limit=10000", {}, function(data) {
+    var results = data.results;
+    var lists = [];
+    lists.push({id: "", text: '---', value: ''});
+    for(var i = 0 in results) {
+        var row = results[i];
+        t = {id:row.id, text: row.name, value: row.id};
+        lists.push(t);
+    }
+    $("#service_id").empty();
+    $("#service_id").select2({
+        placeholder: "",
+        data: lists
+    });
+})
+
+{#initCombobox({#}
+{#    renderTo: "service_id",#}
+{#    url: "/api/app/service/?format=json&limit=10000",#}
+{#    defaultValue: "",#}
+{#    responseHandler: function(data) {#}
+{#        var results = data.results;#}
+{#        var lists = [];#}
+{#        lists.push({text: '---', value: ''});#}
+{#        for(var i = 0 in results) {#}
+{#            var row = results[i];#}
+{#            t = {text: row.app_name + "/" + row.name, value: row.id};#}
+{#            lists.push(t);#}
+{#        }#}
+{#        return lists;#}
+{#    }#}
+{#});#}
+
+$("#addHostButton").on("click", function(e) {
+    var form = $("#addHostForm").validate({
+        rules:{
+            amount:{
+                number: true,
+                min: 0
+            }
+        },
+        submitHandler: function(form) {
+            $.bootstrapLoading.start({ loadingTips: "正在处理数据，请稍候..." });
+            $(form).ajaxSubmit({
+                type: 'post',
+                url: "/api/host/host/",
+                success: function(data) {
+                    $("#rtn_msg").text("新增设备成功");
+                    $("#rtn_msg").removeClass("alert-danger");
+                    $("#rtn_msg").addClass("alert-success");
+                    $.bootstrapLoading.end();
+                    $("#rtn_msg").show();
+                    $("#rtn_msg").focus();
+                    $("html,body").animate({scrollTop:0}, 10)
+                },
+                error: function(data) {
+                    $("#rtn_msg").text("新增设备失败:" + data.responseText);
+                    $("#rtn_msg").removeClass("alert-success");
+                    $("#rtn_msg").addClass("alert-danger");
+                    $.bootstrapLoading.end();
+                    $("#rtn_msg").show();
+                    $("#rtn_msg").focus();
+                    $("html,body").animate({scrollTop:0}, 10)
+                }
+            });
+        }
+    });
+    $("#addHostForm").submit();
+});
+
+
+$("#uploadHostButton").on("click", function(e) {
+    $.ajaxFileUpload(
+        {
+            url: '/api/host/upload/?format=json', //用于文件上传的服务器端请求地址
+            secureuri: false, //一般设置为false
+            fileElementId: 'file', //文件上传空间的id属性  <input type="file" id="file" name="file" />
+            //dataType: 'text', //返回值类型 一般设置为json
+            //data: params,
+            success: function (data, status) {
+                var json = $.parseJSON(data.documentElement.textContent);
+                if (json.success) {
+                    $("#rtn_msg").text("批量导入设备成功");
+                    $("#rtn_msg").removeClass("alert-danger");
+                    $("#rtn_msg").addClass("alert-success");
+                    $('#uploadModal').modal('hide');
+                    $("#rtn_msg").show();
+                    $("#rtn_msg").focus();
+                    $("html,body").animate({scrollTop:0}, 10)
+                    //location.reload();
+                } else {
+                    init_errors(json.errors);
+                }
+
+            },
+            error: function (data, status, e) {
+                $.alert({
+                    title: '新增失败',
+                    content: data.responseText
+                });
+            }
+        }
+    )
+});
+
+function errorFormatter(value, row, index) {
+    var html = value;
+    html = "<div style='background:red; color:#FFF; text-align:center; min-width: 80px;'>" + html + "</div>";
+    return html;
+}
+
+function init_errors(errors) {
+    $("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+    if (errors.length > 0) {
+        var item = errors[0];
+        var columns = []
+        for(var k in item) {
+            t = {field: k, title: k}
+            if(k == 'error') {
+                t['formatter'] = errorFormatter
+            }
+            columns.push(t);
+        }
+        var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+            columns: columns,
+            data: errors,
+            clickToSelect: false,
+            striped: true,
+            onPostBody: function () {
+                $('.cell-pro').each(function(index, e){
+                    var $ee = $(e);
+                    if($ee.text()){
+                        var color = $ee.css('color');
+                        var $father = $ee.parent('td');
+                        $father.css({'background-color': color});
+                        $ee.css({'color': '#ffffff'});
+                    }
+                });
+            },
+        });
+    }
+}
+</script>
+
+{% endblock %}

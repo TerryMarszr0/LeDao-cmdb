@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> 变更列表</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <!--内页存放内容-->
+                     <div class="inner-box inner-list-box">
+                        <div id="my_input" class="dan-table-menu form form-inline" >
+
+                            <div class="btn-group" role="group" aria-label="...">
+                                  <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-refresh"></span> 刷新
+                                  </button>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="username" name="username" class="form-control searchForm">
+                                        <option value="">变更用户</option>
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="action" name="action" class="form-control searchForm">
+                                        <option value="" selected>变更类型</option>
+                                        {% for t in actions %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="resource" name="resource" type="text" class="form-control searchForm" placeholder="操作资源" >
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="index" name="index" type="text" class="form-control searchForm" placeholder="关键字" >
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="start_time" name="start_time" type="text" class="form-control searchForm" placeholder="起始时间" >
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="end_time" name="end_time" type="text" class="form-control searchForm" placeholder="结束时间" >
+                                </form>
+                            </div>
+
+                            <!--
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="search" name="search" type="text" class="form-control searchForm" placeholder="索引/变更内容" >
+                                </form>
+                            </div>
+                            -->
+                        </div>
+
+                        <div id="my_grid">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block self_footer_js %}
+<script>
+
+$(".searchForm").on("change", function(e) {
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
+    }
+});
+
+$('#start_time').datetimepicker({
+    //minView: "day", //选择日期后，不会再跳转去选择时分秒
+    language:  'zh-CN',
+    format: 'yyyy-mm-dd hh:ii:ss',
+    todayBtn:  1,
+    autoclose: 1
+});
+
+$('#end_time').datetimepicker({
+    //minView: "month", //选择日期后，不会再跳转去选择时分秒
+    language:  'zh-CN',
+    format: 'yyyy-mm-dd hh:ii:ss',
+    todayBtn:  1,
+    autoclose: 1
+});
+
+initCombobox({
+    renderTo: "username",
+    url: "/api/user/user/?format=json&limit=100000",
+    defaultValue: "",
+    responseHandler: function(data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for(var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.username, value: row.username};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+
+var _top = $("#my_grid").offset().top;
+var height = $(window).height() - _top - 20;
+
+$("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+
+var columns = [
+                {field: 'chk', title: '复选框', checkbox: true},
+                {field: 'id', title: 'ID'},
+                {field: 'username', title: '操作人'},
+                {field: 'action', title: '变更类型'},
+                {field: 'resource', title: '操作资源'},
+                {field: 'index', title: '关键字'},
+                {field: 'message', title: '变更内容'},
+                {field: 'change_time', title: '变更时间'}
+            ];
+
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+    columns: columns,
+    url: "/api/change/change/?format=json",
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    responseHandler: function (res) {
+        var data = {total: res.count, rows: res.results}
+        return data;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if(typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function(i, field){
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+</script>
+
+{% endblock %}

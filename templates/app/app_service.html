@@ -1,0 +1,814 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> 服务列表</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <div class="inner-box inner-list-box">
+                        <div id="my_input" class="dan-table-menu form form-inline" >
+
+                            <div class="btn-group" role="group" aria-label="...">
+                                  <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-refresh"></span> 刷新
+                                  </button>
+                                {% if user.is_superuser == 1 or user.is_staff == 1%}
+                                <button type="button" id="add" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addModal" data-whatever="@mdo">
+                                    <span class="glyphicon glyphicon-plus"></span> 新增
+                                </button>
+                                <button type="button" id="delete" class="btn btn-sm btn-danger disabled">
+                                    <span class="glyphicon glyphicon-remove"></span> 删除
+                                </button>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="search_group" name="group" class="form-control searchForm">
+                                        <option value="" selected>业务线</option>
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="search_line" name="app_id" class="form-control searchForm">
+                                        <option value="{{ app_id }}" selected>应用</option>
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="type" name="type" class="form-control searchForm">
+                                        <option value="" selected>服务类型</option>
+                                        {% for t in types %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="_state" name="state" class="form-control searchForm">
+                                        <option value="">状态</option>
+                                        {% for t in state %}
+                                        <option value="{{ t.0 }}" {% if t.0 == 'online' %} selected {% endif %}>{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="search" name="search" type="text" class="form-control searchForm" placeholder="名称/备注" >
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="my_grid">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">新增服务</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="myForm">
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">服务名称:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='name' name="name" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">所属应用:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="app_id" name="app_id" class="form-control required">
+                        <option value="">应用</option>
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">服务类型:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="type" name="type" class="form-control required">
+                        <option value="">---</option>
+                        {% for t in types %}
+                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">备注:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <textarea id="comment" name="comment" rows="3" class="form-control"></textarea>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group" id="vcs_rep">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">Git仓库:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <input type="text" id='vcsRep' name="vcs_rep" class="form-control"/>
+	            </div>
+            </div>
+          </div>
+
+{# ###################################################负责人的多选框############################################ #}
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">负责人:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="auth_username" name="user_name[]" class="form-control" multiple="multiple" style="width: 100%;">
+                        <option value="">负责人名称</option>
+		            </select>
+	            </div>
+            </div>
+          </div>
+{# #################################################################################################################### #}
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label"></label>
+	            </div>
+	            <div class="col-lg-8">
+                    <div id="my_input" class="dan-table-menu form form-inline" >
+	            	    <input type="checkbox" id='auto' name="auto" class="form-control"/> 添加到Auto
+                    </div>
+	            </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="formSubmit" class="btn btn-primary ladda-button"><span class="ladda-label"> 提交 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">修改服务信息</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="updateForm" action="">
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">服务名称:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='_name' name="name" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">所属应用:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_app_id" name="app_id" class="form-control required">
+                        <option value="">应用</option>
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">服务类型:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_type" name="type" class="form-control required">
+                        <option value="">---</option>
+                        {% for t in types %}
+                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">备注:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <textarea id="_comment" name="comment" rows="3" class="form-control"></textarea>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">Git仓库:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <input type="text" id='_vcsRep' name="vcs_rep" class="form-control"/>
+	            </div>
+            </div>
+          </div>
+
+{# ###################################################负责人的多选框############################################ #}
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">负责人:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_auth_username" name="user_name[]" class="form-control" multiple="multiple" style="width: 100%;">
+                        <option value="">负责人名称</option>
+		            </select>
+	            </div>
+            </div>
+          </div>
+{# #################################################################################################################### #}
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">服务状态:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_state" name="state" class="form-control required">
+                        <option value="">---</option>
+                        {% for t in state %}
+                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="updateSubmit" class="btn btn-primary ladda-button"><span class="ladda-label"> 提交 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 变更日志 -->
+<div class="modal fade" id="changeLogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+          <iframe id="changeLogIFrame" width="100%" height="750px;" style="border:0;" src=""></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 变更日志 -->
+
+{% endblock %}
+
+{% block self_footer_js %}
+<script>
+
+$(".searchForm").on("change", function(e) {
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
+    }
+});
+
+$.getJSON('{{ cmdb_url }}/api/public/gitrepo/?format=json', function(data){
+    var results = data;
+    var lists = [];
+    lists.push({text: '---', value: ''});
+    for(var i = 0 in results) {
+        var row = results[i];
+        //t = {text: row.ssh_url_to_repo, value: row.ssh_url_to_repo};
+        //lists.push(t);
+        lists.push(row.ssh_url_to_repo);
+    }
+    $("#vcsRep").autocomplete({
+        zIndex: 9999,
+        source: lists
+    });
+});
+
+$.getJSON('{{ cmdb_url }}/api/public/gitrepo/?format=json', function(data){
+    var results = data;
+    var lists = [];
+    lists.push({text: '---', value: ''});
+    for(var i = 0 in results) {
+        var row = results[i];
+        //t = {text: row.ssh_url_to_repo, value: row.ssh_url_to_repo};
+        //lists.push(t);
+        lists.push(row.ssh_url_to_repo);
+    }
+    $("#_vcsRep").autocomplete({
+        zIndex: 9999,
+        source: lists
+    });
+});
+
+initCombobox({
+    renderTo: "search_group",
+    url: "/api/app/group/?format=json&limit=10000",
+    defaultValue: "{{ app_id }}",
+    responseHandler: function(data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for(var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.name, value: row.name};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+
+initCombobox({
+    renderTo: "search_line",
+    url: "/api/app/app/?format=json&limit=10000",
+    defaultValue: "{{ app_id }}",
+    responseHandler: function(data) {
+        var results = data.results;
+        console.log(results)
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for(var i = 0 in results) {
+            // console.log(lists[i])
+            var row = results[i];
+            t = {text: row.name, value: row.id};
+            lists.push(t);
+        }
+        console.log(lists)
+        return lists;
+    }
+});
+
+initCombobox({
+    renderTo: "app_id",
+    url: "/api/app/app/?format=json&limit=10000",
+    responseHandler: function(data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for(var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.name, value: row.id};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+
+
+$("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+
+function stateFormatter(value, row, index) {
+    var html = value;
+    if(row['state'] == 'online') {
+        html = '<span class="label label-info arrowed-right arrowed-in">' + value + '</span>'
+    } else if(row['state'] == 'offline') {
+        html = '<span class="label label-danger arrowed-right arrowed-in">' + value + '</span>'
+    }
+    return html;
+}
+
+var columns = [
+                {field: 'chk', title: '复选框', checkbox: true},
+                {field: 'id', title: 'ID'},
+                {field: 'name', title: '服务名称', formatter: groupNameFormatter},
+                {field: 'app_name', title: '应用'},
+                {field: 'hostcount', title: '主机数量'},
+                {field: 'type', title: '服务类型'},
+
+                {field: 'hostname', title: '关联域名'},
+                {field: 'state_name', title: '状态', formatter: stateFormatter},
+                {field: 'comment', title: '备注'},
+                {field: 'principals', title: '负责人'},
+                {field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"}
+            ];
+
+window.actionEvents = {
+    'click .updateACL': function (e, value, row, index) {
+        var id = row['id'];
+        var name = row['name'];
+        var app_id = row['app_id'];
+        var type = row['type'];
+        var comment = row['comment'];
+        $("#_name").val(name);
+        $("#_type").val(type);
+        $("#_comment").val(comment);
+        $("#_vcsRep").val(row['vcs_rep']);
+        $("#_state").val(row['state']);
+
+        initCombobox({
+            renderTo: "_app_id",
+            url: "/api/app/app/?format=json&limit=10000",
+            defaultValue: app_id,
+            responseHandler: function(data) {
+                var results = data.results;
+                var lists = [];
+                lists.push({text: '---', value: ''});
+                for(var i = 0 in results) {
+                    var row = results[i];
+                    t = {text: row.name, value: row.id};
+                    lists.push(t);
+                }
+                return lists;
+            }
+        });
+
+         $.get("/api/user/user/?format=json&limit=10000", {}, function(data) {
+            var results = data.results;
+            var lists = [];
+            lists.push({id: "", text: '---', value: ''});
+            for(var i = 0 in results) {
+                var u = results[i];
+                t = {id:u.username, text: u.username, value: u.username};
+                if($.inArray(u.username, row['principals']) >= 0) {
+                    t['selected'] = true;
+                }
+                lists.push(t);
+            }
+            $("#_auth_username").empty();   {# 编辑时：负责人获取下拉菜单 #}
+            $("#_auth_username").select2({
+                placeholder: "",
+                data: lists
+            });
+
+        });
+
+        var url = "/api/app/service/" + id + "/?format=json"
+        $("#updateForm").attr("action", url);
+    },
+    'click .delACL': function (e, value, row, index) {
+        var id = row['id'];
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除该服务吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/app/service/" + id + "/",
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    },
+    'click .changeACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#changeLogIFrame").attr('src', '/change/reschange/?resource=app_service&res_id=' + id);
+        $("#changeLogModal").modal('show');
+    },
+        'click .resourceACL': function (e, value, row, index) {
+        window.location.href="/app/service/resource/?id="+row['id'];
+    },
+};
+
+function opFormatter(value, row, index) {
+    var html = "<a href='#' class='btn btn-xs btn-warning changeACL'>日志</a>";
+    {% if user.is_superuser == 1 or user.is_staff == 1%}
+    html += " <a href='#' class='btn btn-xs btn-info updateACL' data-toggle='modal' data-target='#updateModal' data-whatever='@mdo'>编辑</a>";
+    html += " <a href='#' class='btn btn-xs btn-success resourceACL'>利用率</a>";
+    html += " <a href='#' class='btn btn-xs btn-danger delACL'>删除</a>";
+    {% endif %}
+    return html;
+}
+
+function groupNameFormatter(value, row, index) {
+    var id = row['id'];
+    var html = " <a href='/host/?service_id=" + id + "' >" + value + "</a>";
+    return html;
+}
+
+function buttonStatus() {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length <= 0) {
+        $("#delete").addClass("disabled");
+    } else {
+        $("#delete").removeClass("disabled");
+    }
+}
+
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+    columns: columns,
+    url: "/api/app/service/?format=json",
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    responseHandler: function (res) {
+        var rows = [];
+        for(var i in res.results){
+            var t = res.results[i]
+{#            console.log(t['hostname'])#}
+            if(t['hostname'] != undefined) {
+                t['hostname'] = t['hostname'].join("<br/>")
+                console.log(t['hostname'])
+            }
+
+            rows.push(t);
+
+        }
+        $("#delete").addClass("disabled");
+        var data = {total: res.count, rows: rows}
+        return data;
+    },
+    onCheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onUncheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onCheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    onUncheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if(typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function(i, field){
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+$("#formSubmit").on("click", function(e) {
+    var form = $("#myForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#formSubmit') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'post',
+                url: "/api/app/service/?format=json",
+                success: function(data) {
+                    $("#myForm").resetForm();
+                    $('#addModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                    Ladda.stopAll();
+
+                    $.get("/api/user/user/?format=json&limit=10000", {}, function(data) {       {# 添加成功后在初始化一次 #}
+                        var results = data.results;
+                        var lists = [];
+                        lists.push({id: "", text: '---', value: ''});
+                        for (var i = 0 in results) {
+                            var u = results[i];
+                            t = {id: u.username, text: u.username, value: u.username};
+                            t['selected'] = false;
+                            lists.push(t);
+                        }
+                        $("#auth_username").empty();
+                        $("#auth_username").select2({
+                            placeholder: "",
+                            data: lists
+                        });
+
+                    });
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '新增失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#myForm").submit();
+});
+
+$("#updateSubmit").on("click", function(e) {
+    var form = $("#updateForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#updateSubmit') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'patch',
+                success: function(data) {
+                    Ladda.stopAll();
+                    $("#updateForm").resetForm();
+                    $('#updateModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '修改失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#updateForm").submit();
+});
+
+$("#delete").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ids = [];
+        for(var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除选中服务吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/app/service/?format=json",
+                            data: {id: ids},
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+});
+
+
+{######################################################################################################################}
+$.get("/api/user/user/?format=json&limit=10000", {}, function(data) {       {# 查询用户表得到用户的名称 #}
+    var results = data.results;
+    var lists = [];
+    lists.push({id: "", text: '---', value: ''});
+    for (var i = 0 in results) {
+        var u = results[i];
+        t = {id: u.username, text: u.username, value: u.username};
+        t['selected'] = false;
+        lists.push(t);
+    }
+    $("#auth_username").empty();    {# 添加时：负责人获取下拉菜单 #}
+    $("#auth_username").select2({
+        placeholder: "",
+        data: lists
+    });
+
+    $("#_auth_username").empty();  {# 添加时：sa获取下拉菜单 #}
+    $("#_auth_username").select2({
+        placeholder: "",
+        data: lists
+    });
+
+
+});
+
+{######################################################################################################################}
+</script>
+
+{% endblock %}

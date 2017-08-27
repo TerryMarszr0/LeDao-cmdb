@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> 授权申请列表</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <!--内页存放内容-->
+                     <div class="inner-box inner-list-box">
+                        <div id="my_input" class="dan-table-menu form form-inline" >
+
+                            <div class="btn-group" role="group" aria-label="...">
+                                  <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-refresh"></span> 刷新
+                                  </button>
+                                <button type="button" id="add" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addModal" data-whatever="@mdo">
+                                    <span class="glyphicon glyphicon-plus"></span> 申请
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select name="state" class="form-control searchForm">
+                                        <option value="">状态</option>
+                                        {% for s in states %}
+                                        <option value="{{ s.0 }}">{{ s.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="search" name="search" type="text" class="form-control searchForm" placeholder="申请原因" >
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="my_grid">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">授权申请</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="addForm">
+
+            <div class="form-group">
+            <div class="row">
+                <div class="col-lg-3" style="text-align: right">
+                    <label for="_title" class="control-label">应用:</label>
+                </div>
+                <div class="col-lg-8">
+                    <select id="app_id" name="app_id" class="form-control">
+                        <option value="" selected>服务组</option>
+                    </select>
+                </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+                <div class="col-lg-3" style="text-align: right">
+                    <label for="_title" class="control-label">服务:</label>
+                </div>
+                <div class="col-lg-8">
+                    <select id="service_id" name="service_id" class="form-control">
+                        <option value="" selected>服务</option>
+                    </select>
+                </div>
+            </div>
+          </div>
+            <!--
+          <div class="form-group">
+            <div class="row">
+                <div class="col-lg-3" style="text-align: right">
+                    <label for="_title" class="control-label">模糊搜索:</label>
+                </div>
+                <div class="col-lg-8">
+                    <input id="ip_search" name="search" type="text" class="form-control" placeholder="按ip模糊搜索" >
+                </div>
+            </div>
+          </div>
+          -->
+
+          <div class="form-group">
+            <div class="row">
+                <div class="col-lg-3" style="text-align: right">
+                    <label for="_title" class="control-label">主机ip:</label>
+                </div>
+                <div class="col-lg-8">
+                    <textarea id="apply_ip" name="ip" rows="5" class="form-control"></textarea>
+                </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+                <div class="col-lg-3" style="text-align: right">
+                    <span style="color:red">* </span><label for="_title" class="control-label">权限:</label>
+                </div>
+                <div class="col-lg-8">
+                    <select id="auth_role" name="role" class="form-control required">
+                        <option value="">---</option>
+                        {% for r in roles %}
+                        <option value="{{ r.0 }}">{{ r.1 }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+                <div class="col-lg-3" style="text-align: right">
+                    <span style="color:red">* </span><label for="_title" class="control-label">授权天数:</label>
+                </div>
+                <div class="col-lg-8">
+                    <select id="auth_day" name="day" class="form-control required">
+                        <option value="">---</option>
+                        <option value="30">一个月</option>
+                        <option value="180">半年</option>
+                        <option value="365">一年</option>
+                        <option value="730">两年</option>
+                    </select>
+                </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+                <div class="col-lg-3" style="text-align: right">
+                    <span style="color:red">* </span> <label for="_title" class="control-label">申请原因:</label>
+                </div>
+                <div class="col-lg-8">
+                    <textarea id="reason" name="reason" rows="3" class="form-control required"></textarea>
+                </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="addSubmit" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 提交 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 变更日志 -->
+<div class="modal fade" id="changeLogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+          <iframe id="changeLogIFrame" width="100%" height="750px;" style="border:0;" src=""></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 变更日志 -->
+
+<!-- 授权申请详情 -->
+<div class="modal fade" id="applyDetailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+          <iframe id="applyDetailIFrame" width="100%" height="750px;" style="border:0;" src=""></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 授权申请详情 -->
+
+{% endblock %}
+
+{% block self_footer_js %}
+<script>
+
+$(".searchForm").on("change", function(e) {
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
+    }
+});
+
+initCombobox({
+    renderTo: "service_id",
+    url: "/api/app/service/?format=json&limit=10000",
+    defaultValue: "",
+    responseHandler: function (data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for (var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.name, value: row.id};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+
+initCombobox({
+    renderTo: "app_id",
+    url: "/api/app/app/?format=json&limit=10000",
+    defaultValue: "",
+    responseHandler: function (data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for (var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.name, value: row.id};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+
+$("#app_id").on("change", function(e) {
+    var app_id = $("#app_id").val();
+    if(app_id == "" || app_id == null || app_id == 0) {
+        $("#apply_ip").val('');
+        return
+    }
+    $.get('/api/host/host/?limit=1000&app_id=' + app_id, {}, function(data) {
+        var results = data['results']
+        var ip = '';
+        for(var i in results) {
+            ip += results[i].ip + "\n";
+        }
+        $("#apply_ip").val(ip);
+    });
+});
+
+$("#service_id").on("change", function(e) {
+    var service_id = $("#service_id").val();
+    if(service_id == "" || service_id == 0) {
+        $("#apply_ip").val('');
+        return
+    }
+    $.get('/api/host/host/?limit=1000&service_id=' + service_id, {}, function(data) {
+        var results = data['results']
+        var ip = '';
+        for(var i in results) {
+            ip += results[i].ip + "\n";
+        }
+        $("#apply_ip").val(ip);
+    });
+});
+
+$("#ip_search").on("change", function(e) {
+    var ip_search = $("#ip_search").val();
+    if(ip_search == null || ip_search == "") {
+        $("#apply_ip").val('');
+    }
+    $.get('/api/host/host/?limit=10000&search=' + ip_search, {}, function(data) {
+        var results = data['results']
+        var ip = '';
+        for(var i in results) {
+            ip += results[i].ip + "\n";
+        }
+        $("#apply_ip").val(ip);
+    });
+});
+
+
+var _top = $("#my_grid").offset().top;
+var height = $(window).height() - _top - 20;
+
+$("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+
+var columns = [
+                {field: 'id', title: 'ID'},
+                {field: 'reason', title: '申请原因'},
+                {field: 'apply_time', title: '申请时间'},
+                {field: 'state', title: '状态'},
+                {field: 'reviewer', title: '审核人'},
+                {field: 'audit_time', title: '审核时间'},
+                {field: 'reviewer_reason', title: '审批意见'},
+                {field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"}
+            ];
+
+window.actionEvents = {
+    'click .detailACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#applyDetailIFrame").attr('src', '/fortress/applydetail/?apply_id=' + id);
+        $("#applyDetailModal").modal('show');
+    },
+    'click .changeACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#changeLogIFrame").attr('src', '/change/reschange/?resource=fortress_applyrecord&res_id=' + id);
+        $("#changeLogModal").modal('show');
+    }
+};
+
+function opFormatter(value, row, index) {
+    var html = "<a href='#' class='btn btn-xs btn-warning changeACL'>日志</a>";
+    html += " <a href='#' class='btn btn-xs btn-info detailACL' data-toggle='modal' data-target='#detailModal' data-whatever='@mdo'>详情</a>";
+    return html;
+}
+
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+    columns: columns,
+    url: "/api/fortress/myapply/?format=json",
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    responseHandler: function (res) {
+        var result = res.results;
+        var data = {total: res.count, rows: result}
+        return data;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if(typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function(i, field){
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+$("#addSubmit").on("click", function(e) {
+    var form = $("#addForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#addSubmit') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'post',
+                url: "/api/fortress/applyrecord/?format=json",
+                success: function(data) {
+                    $("#addForm").resetForm();
+                    $('#addModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                    Ladda.stopAll();
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '申请失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#addForm").submit();
+});
+
+</script>
+
+{% endblock %}

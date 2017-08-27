@@ -1,0 +1,141 @@
+.my_chart3 html,
+.my_chart3 body {
+  padding: 0;
+  margin: 0;
+}
+.my_chart3 body {
+  -webkit-font-smoothing: antialiased;
+  text-align: center;
+  font: 18px / 1.4 'Helvetica', 'Arial', sans-serif;
+  padding-top: 60px;
+}
+.my_chart3 ul {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  height: 60px;
+  background: #cccccc;
+  font-size: 0;
+  line-height: 0;
+  letter-spacing: -0.3em;
+}
+.my_chart3 li {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  width: 25%;
+  text-align: center;
+  font-size: 18px;
+  line-height: 60px;
+  letter-spacing: normal;
+}
+.my_chart3 li a {
+  display: block;
+  color: #ffffff;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.my_chart3 li a:hover,
+.my_chart3 li a.active {
+  background: #333333;
+  color: #ffffff;
+}
+.my_chart3 li a.active:after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -10px;
+  border: 10px solid;
+  border-color: transparent;
+  border-top-color: #333333;
+}
+.my_chart3 .chart3 {
+  position: relative;
+  display: inline-block;
+  width: 110px;
+  height: 110px;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  text-align: center;
+  margin-right:45px;
+  margin-left: 155px;
+}
+.my_chart3 .chart3 canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.my_chart3 .percent {
+  display: inline-block;
+  line-height: 110px;
+  z-index: 2;
+}
+.my_chart3 .percent:after {
+  margin-left: 0.1em;
+  font-size: .8em;
+}
+.my_chart3 .angular {
+  margin-top: 100px;
+}
+.my_chart3 .angular .chart3 {
+  margin-top: 0;
+}
+.my_chart3 input {
+  display: block;
+  margin: auto;
+  margin-bottom: 3em;
+}
+.my_chart3 .btn {
+  display: block;
+  width: 200px;
+  margin: 0 auto;
+  padding: 10px 20px;
+  background: #cccccc;
+  color: #ffffff;
+  text-transform: uppercase;
+  cursor: pointer;
+  font-size: 0.8em;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.my_chart3 .btn:hover {
+  background: #333333;
+  color: #ffffff;
+}
+.my_chart3 .span6 {
+  float: left;
+  width: 50%;
+}
+@media only screen and (max-width: 600px) {
+  .my_chart3 li {
+    font-size: 14.4px;
+  }
+}
+@media only screen and (max-width: 430px) {
+  .my_chart3 .span6 {
+    float: none;
+    width: 100%;
+  }
+  .my_chart3 body {
+    padding-top: 0;
+  }
+  .my_chart3 ul {
+    height: auto;
+    position: static;
+  }
+  .my_chart3 li {
+    display: block;
+    width: 100%;
+  }
+  .my_chart3 li a {
+    white-space: normal;
+  }
+  .my_chart3 a.active:after {
+    display: none;
+  }
+}

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> 我的授权</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <!--内页存放内容-->
+                     <div class="inner-box inner-list-box">
+                        <div id="my_input" class="dan-table-menu form form-inline" >
+
+                            <div class="btn-group" role="group" aria-label="...">
+                                  <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-refresh"></span> 刷新
+                                  </button>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="host" name="host" type="text" class="form-control searchForm" placeholder="ip/主机名" >
+                                </form>
+                            </div>
+                        </div>
+                        <div id="my_grid">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block self_footer_js %}
+<script>
+
+$(".searchForm").on("change", function(e) {
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
+    }
+});
+
+$("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+
+var columns = [
+                {field: 'chk', title: '复选框', checkbox: true},
+                {field: 'id', title: 'ID'},
+                {field: 'ip', title: 'ip'},
+                {field: 'role', title: '权限'},
+                {field: 'cuser', title: '授权人'},
+                {field: 'ctime', title: '创建时间'},
+                {field: 'expiration_time', title: '过期时间'}
+            ];
+
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+    columns: columns,
+    url: "/api/fortress/authrecord/?format=json&username={{ username }}",
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    responseHandler: function (res) {
+        var rows = [];
+        var result = res.results;
+        for(var i in result) {
+            var t = result[i];
+            rows.push(t);
+        }
+        var data = {total: res.count, rows: rows}
+        return data;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if(typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function(i, field){
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+</script>
+
+{% endblock %}

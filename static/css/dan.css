@@ -1,0 +1,115 @@
+@charset "utf-8";
+/* CSS Document */
+/*单页菜单样式2*/
+body{ background-color:#fff;}
+.dancontainer{ padding:70px 30px 20px;}
+.iframecontainer{ padding: 0px 0px;}
+.container-box { position:absolute; top:70px; bottom:10px; left: 10px; right: 10px;}
+.form-control:focus {
+	border-color:#39A9A9;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
+	box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(35,167,167,.6)
+}
+.dropdown-menu>.active>a, .dropdown-menu>.active>a:focus, .dropdown-menu>.active>a:hover{ background-color: #00BEBE;}
+
+/*菜单导航*/
+.com-nav-sty { min-height: 50px;}
+.com-nav-sty .dropdown-menu > li > a { padding: 10px 20px 10px 20px;}
+
+.com-nav-sty .navbar-nav > li > a{ font-size:14px;padding:10px 20px;}
+.com-nav-sty .top-search-box{ margin-top:2px;}
+.dan-nav-sty .navbar-right li{ float:right;}
+.dan-nav-sty .navbar-right li a{ line-height:30px; font-size:12px; color:#FFC633;padding:10px 15px;}
+.dan-nav-sty .navbar-right .dropdown li{ width:100%; float:none;}
+.dan-nav-sty .navbar-right .dropdown li a{ line-height:20px; color: #ddd; }
+.dan-nav-sty .navbar-right .dropdown-menu > li > a:hover,.dan-nav-sty .navbar-right .dropdown-menu > li > a:focus{ color:#3AD2BD; background-color:transparent; border:none;}
+/*单页的主要内容*/
+.inner-h1{font-size:20px;color:#000; line-height: 30px; border-bottom:1px solid #ccc;padding:0px 5px 10px; margin-bottom:15px; }
+.inner-h1 a{font-size:14px;color:#05BBB2;margin-left:10px;}
+.border-fl{
+	border-width: 1px 1px 1px 5px;
+	border-style: solid;
+	border-color: #EEE;
+	-moz-border-top-colors: none;
+	-moz-border-right-colors: none;
+	-moz-border-bottom-colors: none;
+	-moz-border-left-colors: none;
+	}
+.border-fl-yell{border-left-color:#FFBD05;}
+.border-fl-red{border-left-color:#FF0000;}
+.border-fl-green{border-left-color:#05BBB2;}
+/*表格操作*/
+.dan-table-menu{line-height:50px;padding:0px 10px;margin-bottom:10px;}
+.bootgrid-header .dropdown-text{ margin-right:0px;}
+/*表格内容
+.dan-table-menu .dropdown-menu{min-width: 100%;}//控制下拉框的
+.inner-box{padding:10px;}
+.inner-tab-box .table{ text-align:center;}
+.inner-tab-box .table thead th{ background-color:#7A9999;color:#fff;font-size:14px;font-weight:bold;text-align:center;}
+.inner-tab-box .table thead th{ background-color:#7A9999;color:#fff;font-size:14px;font-weight:bold;}
+/*改变表格的奇偶行的样式
+.inner-tab-box .table-striped>tbody>tr:nth-of-type(odd) {
+	background-color:#fff;
+}
+.inner-tab-box .table-striped>tbody>tr:nth-of-type(even) {
+	background-color:#f9f9f9;
+}
+.inner-tab-box .table tbody tr:hover{ background-color:#DFDFDF;}
+.inner-tab-box .tab-footer{ overflow:hidden;}
+*/
+/*表单*/
+.inner-list-box .form-group .control-label{ font-size:14px;letter-spacing: 1px; font-weight:normal; color:#000;}
+.inner-list-box .form-control-static a{ color:#05BBB2; text-decoration:underline;}
+	
+/*单页菜单样式2--end*/
+/*小三角
+.dropdown-menu:before{content:'';display:inline-block;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:7px solid #ccc;border-bottom-color:rgba(0, 0, 0, 0.2);position:absolute;top:-7px;left:9px;}
+*/
+/*个人中心*/
+.client-box{ position:relative; border:1px solid #ccc; margin-top:60px; padding:60px 60px 40px;} 
+.client-box .clienTop{ position:absolute; top:-45px;left:50%; margin-left:-50px;padding: 0px 5px; background-color:#fff;}
+.client-box .clienTop span{ display:block;text-align:center; width:90px; height:90px; line-height:90px; border:1px solid #ccc; border-radius:50%; color:#0DC388; font-size:40px;}
+.client-box h3{ font-size:20px; color:#000; margin-bottom:35px; font-weight:bold; width:194px; text-align:right;}
+.client-box .infor-row{ position:relative; width:100%; display:table-row; line-height:30px;}
+.client-box .infor-row dt{display:table-cell;width:200px; color:#666; font-weight:normal; padding-bottom:24px; padding-left:10px; text-align:right; }
+.client-box .infor-row dd{display:table-cell; color:#000; padding-left:40px; padding-bottom:24px;}
+
+
+.button-add {color: #05BBB2;}
+.button-conf {color: #ec971f;}
+.button-remove {color: #d9534f;}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

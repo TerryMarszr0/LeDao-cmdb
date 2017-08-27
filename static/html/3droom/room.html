@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>www.hightopo.com - ht for web</title>
+        <meta charset="UTF-8">   
+        <style>
+            html, body {
+                padding: 0px;
+                margin: 0px;                
+            }            
+            .main {
+                margin: 0px;
+                padding: 0px;
+                position: absolute;
+                top: 0px;
+                bottom: 0px;
+                left: 0px;
+                right: 0px;
+            }
+        </style> 
+        <script src="ht.js"></script>  
+        <script src="ht-modeling.js"></script>  
+        <script src="room.js"></script>  
+        <script src="path.js"></script>  
+        <script>  
+            
+function mt(p3s,g3d){
+    if(p3s.length<2)return;
+        var nEp3 = p3s[0] , nCp3 = p3s[1];
+        var ep3 = g3d.getEye().slice();
+        var cp3 = g3d.getCenter().slice();
+
+        ht.Default.startAnim({
+            frames: 100,
+            interval:10,
+            easing: function(t) {return t;},
+            action: function(t){
+                g3d.setCenter([cp3[0]+(nCp3[0]-cp3[0])*t,cp3[1]+(nCp3[1]-cp3[1])*t,cp3[2]+(nCp3[2]-cp3[2])*t]);
+                g3d.setEye([ep3[0]+(nEp3[0]-ep3[0])*t,ep3[1]+(nEp3[1]-ep3[1])*t,ep3[2]+(nEp3[2]-ep3[2])*t]);
+            },
+            finishFunc:function(){
+               p3s.splice(0,1);
+               mt(p3s,g3d);
+            }
+        });
+}            
+
+            
+            function init(){                                 
+                dm = new ht.DataModel();                
+                g2d = new ht.graph.GraphView(dm);                                                                                                 
+                g3d = new ht.graph3d.Graph3dView(dm);                          
+                mainSplit = new ht.widget.SplitView(g2d, g3d, 'h', 0.3); 
+                
+                view = mainSplit.getView();  
+                view.className = 'main';
+                document.body.appendChild(view);    
+                window.addEventListener('resize', function (e) {
+                    mainSplit.invalidate();
+                }, false);        
+                
+                g2d.setEditable(true);
+                g2d.setZoom(0.1);
+                g2d.translate(200, 200);
+                
+                g3d.setEditable(true);
+                g3d.setGridVisible(true); 
+                g3d.setGridSize(60);
+                g3d.setGridGap(50);
+                g3d.setFar(20000);
+                g3d.setEye([0, 600, 1000]);
+                g3d.setCenter([0, 200, 0]);
+                g3d.getView().style.background = '#F9F9F9';
+                
+
+                for(var i=1; i<=3; i++){
+                    var d = 1000 + i*150;
+                    wall = new ht.Wall('wall' + i);                
+                    wall.setPoints(new ht.List([
+                        {x: -d, y: -d},
+                        {x: d, y: -d},
+                        {x: d, y: d},
+                        {x: -d, y: d},
+                        {x: -d, y: -d}
+                    ]));    
+                    dm.add(wall);
+                }                
+                
+                p1 = new ht.DDFPort();
+                p2 = new ht.DDFPort();
+                p1.p3(-30, 200, 0);
+                p2.p3(30, 200, 0);                
+                connector = new ht.DDFConnector();
+                connector.setPort1(p1);
+                connector.setPort2(p2);              
+                dm.add(p1);
+                dm.add(p2);
+                dm.add(connector);                
+                
+                p3 = new ht.ODFPort();
+                p4 = new ht.ODFPort();
+                p3.p3(-30, 250, 0);
+                p4.p3(30, 250, 0);                
+                dm.add(p3);
+                dm.add(p4);                              
+                distributionFrame = new ht.DistributionFrame();
+                distributionFrame.setName('www.hightopo.com - HT for Web');
+                dm.add(distributionFrame);
+                
+                frame = new ht.Frame();
+                frame.translate3d(-300, 0, 0);
+                frame.setName('Frame');
+                dm.add(frame);
+                
+                for(var i=1; i<=3; i++){
+                    door = new ht.Door('door' + i);
+                    door.translate3d(200 * i, 0, 0);
+                    dm.add(door);
+                }
+                
+                roam(g3d, {y: 200, speed: 250, rotateAtLast: true}, [
+                    [0, 800], [0, -800],                     
+                    [-800, -800], 
+                    //[-800, 800], [800, 800], 
+                    //[800, -800], [0, -800], 
+                    //[0, 0], [-800, 800], [800, -800], 
+                    //[0, 0], [800, 800], [-800, -800],
+                    //[0, 0], [0, 800], [0, 0],
+                    //[400, 0], 
+                    //[0, -400], [-400, 0], [0, 400],
+                    //[0, 0], 
+                    [0, 300]
+                ]);
+                
+
+            }
+
+        </script>
+    </head>
+    <body onload="init();">                                
+    </body>
+</html>

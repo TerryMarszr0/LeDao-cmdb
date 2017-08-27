@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>负载均衡</title>
+
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/font-awesome/css/font-awesome.css" rel="stylesheet">
+    <link href="/static/css/plugins/iCheck/custom.css" rel="stylesheet">
+    <link href="/static/css/animate.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="/static/css/colorbox.css" rel="stylesheet">
+    <link href="/static/css/vaildator/jquery.validator.css" rel="stylesheet">
+    <link href="/static/css/magnific/magnific-popup.css" rel="stylesheet">
+    <link href="/static/css/plugins/fullcalendar/fullcalendar.css" rel="stylesheet">
+    <link href="/static/css/plugins/dropzone/basic.css" rel="stylesheet">
+    <link href="/static/css/plugins/dropzone/dropzone.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+    <link rel="stylesheet" href="/static/libs/ladda/ladda-themeless.min.css" />
+    <link href="/static/libs/jquery-ui/jquery-ui.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+    <script src="/static/js/jquery-2.1.1.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+
+    <!-- pop windows -->
+    <script src="/static/js/jquery.colorbox.js"></script>
+
+    <!-- validator js -->
+    <script src="/static/js/validator/jquery.validator.js"></script>
+    <script src="/static/js/validator/zh_CN.js"></script>
+    <script src="/static/js/datapicker/bootstrap-datepicker.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/libs/ladda/spin.min.js"></script>
+    <script src="/static/libs/ladda/ladda.min.js"></script>
+    <script src="/static/libs/jquery-ui/jquery-ui.js"></script>
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+</head>
+<body style="padding-top:20px; background-color: #ffffff;">
+    <div class="container">
+        <div id="loading" style="display: none;"></div>
+        <div class="row">
+            <form id="createForm" class="myUpdateForm">
+                <div class="col-lg-5" style="text-align: left">
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <span style="color:red">* </span><label for="_title" class="control-label">域名:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <input type="text" id='server_name' name="server_name" class="form-control required lb_server"/>
+                            <input type="hidden" id='service_id' name="service_id" value="{{ service_id }}" class="form-control"/>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <span style="color:red">* </span><label for="_title" class="control-label">环境:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <select id="env" name="env" class="form-control required lb_server">
+                                <option value="">---</option>
+                                {% for t in env %}
+                                <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <span style="color:red">* </span><label for="_title" class="control-label">端口:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <input type="number" id='port' name="port" value="80" class="form-control required lb_server"/>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <label for="_title" class="control-label">SSL端口:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <input type="number" id='sslport' name="sslport" value="" class="form-control"/>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <span style="color:red">* </span><label for="_title" class="control-label">Nginx集群:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <select id="lb_service_id" name="lb_service_id" class="form-control required">
+                                <option value="">Nginx集群</option>
+                            </select>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <span style="color:red">* </span><label for="_title" class="control-label">路径:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <input type="text" id='path' name="path" class="form-control required"/>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <span style="color:red">* </span><label for="_title" class="control-label">后端端口:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <input type="number" id='backend_port' name="backend_port" value="" class="form-control required"/>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <label for="_title" class="control-label">upstream路径:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <input type="text" id='proxy_path' name="proxy_path" class="form-control"/>
+                        </div>
+                    </div>
+                  </div>
+
+                <!--
+                    <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <span style="color:red">* </span><label for="_title" class="control-label">负载均衡算法:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <select id="upstreamtype" name="upstreamtype" class="form-control required">
+                                <option value="">---</option>
+                                {% for t in types %}
+                                <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <span style="color:red">* </span><label for="_title" class="control-label">max_fails:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <input type="number" id='max_fails' name="max_fails" value="3" class="form-control required"/>
+                        </div>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" >
+                            <span style="color:red">* </span><label for="_title" class="control-label">fail_timeout:</label>
+                        </div>
+                        <div class="col-lg-8">
+                            <input type="number" id='fail_timeout' name="fail_timeout" value="30" class="form-control required"/>
+                        </div>
+                    </div>
+                  </div>
+                -->
+
+                </div>
+                <div class="col-lg-7" style="text-align: left">
+                    <div class="row" style="margin:0px 10px;">
+                        Server参数：
+                        <textarea id="parameter" name="parameter" class="form-control" rows="7"></textarea>
+                    </div>
+                    <div class="row" style="margin:10px 10px;">
+                        location参数：
+                        <textarea id="location_parameter" name="location_parameter" class="form-control" rows="8">
+    proxy_redirect off ;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header REMOTE-HOST $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_connect_timeout 600;
+    proxy_send_timeout 600;
+    proxy_read_timeout 600;
+    proxy_ignore_client_abort on;
+    proxy_buffer_size 1600k;
+    proxy_buffers 4 3200k;
+    proxy_busy_buffers_size 6400k;
+    proxy_temp_file_write_size 6400k;
+    proxy_max_temp_file_size 128m;
+    proxy_next_upstream error timeout invalid_header http_500 http_503 http_404;
+                        </textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="row">
+            <div class="col-lg-5" style="text-align: left">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-lg-3" style="text-align: left">
+                            &nbsp;
+                        </div>
+                        <div class="col-lg-8" style="text-align: left">
+                            <button type="button" id="createButton" class="btn btn-primary">
+                                新增
+                            </button>
+                            <button type="button" id="updateButton" class="btn btn-warning" style="display: none;">
+                                修改
+                            </button>
+                            <button type="button" id="cancle" class="btn btn-default" onclick="location.reload();">
+                                取消
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7" style="text-align: left"></div>
+        </div>
+
+        <div class="row" style="margin: 20px 20px;">
+            <div class="inner-box inner-list-box">
+                <div id="my_input" class="dan-table-menu form form-inline" >
+                    <div class="form-group">
+                        <div class="btn-group" role="group" aria-label="...">
+                              <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success">
+                                <span class="glyphicon glyphicon-refresh"></span> 刷新
+                              </button>
+                            {% if user.is_superuser == 1 or user.is_staff == 1%}
+                            <button type="button" id="delete" class="btn btn-sm btn-danger disabled">
+                                <span class="glyphicon glyphicon-remove"></span> 删除
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <form class="my-form">
+                            <input name="domain" type="text" class="form-control searchForm" placeholder="域名" >
+                        </form>
+                    </div>
+                    <div class="form-group">
+                        <form class="my-form">
+                            <input name="location" type="text" class="form-control searchForm" placeholder="路径(app name)" >
+                        </form>
+                    </div>
+                    <div style="text-align: left;">
+                        <table id="my_table" data-show-columns="false">
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 变更日志 -->
+<div class="modal fade" id="changeLogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+          <iframe id="changeLogIFrame" width="100%" height="750px;" style="border:0;" src=""></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 变更日志 -->
+
+<script>
+
+initCombobox({
+    renderTo: "lb_service_id",
+    url: "/api/app/service/?format=json&limit=10000&type=nginx",
+    responseHandler: function(data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for(var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.name, value: row.id};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+
+$(".lb_server").on('change', function(e) {
+    var server_name = $("#server_name").val();
+    var env = $("#env").val();
+    var port = $("#port").val();
+    var params = {
+        server_name: server_name,
+        env: env,
+        port: port
+    }
+    $.get('/api/lb/lb/?format=json', params, function(data) {
+        if(data['results'].length <= 0) {
+            return;
+        }
+        var d = data['results'][0]
+        $("#sslport").val(d['sslport']);
+        $("#parameter").val(d['parameter']);
+        initCombobox({
+            renderTo: "lb_service_id",
+            url: "/api/app/service/?format=json&limit=10000&type=nginx",
+            defaultValue: d['lb_service_id'],
+            responseHandler: function(data) {
+                var results = data.results;
+                var lists = [];
+                lists.push({text: '---', value: ''});
+                for(var i = 0 in results) {
+                    var row = results[i];
+                    t = {text: row.name, value: row.id};
+                    lists.push(t);
+                }
+                return lists;
+            }
+        });
+    });
+});
+
+var columns = [
+            {field: 'chk', title: '复选框', checkbox: true},
+            {field: 'id', title: 'ID'},
+            {field: 'nginx', title: 'Nginx集群', formatter: nginxFormatter},
+            {field: 'server_name', title: '域名', formatter: serverNameFormatter},
+            {field: 'env', title: '环境', formatter: envFormatter},
+            {field: 'port', title: '端口', formatter: portFormatter},
+            {field: 'sslport', title: 'SSL端口', formatter: sslportFormatter},
+            {field: 'path', title: '路径'},
+            {field: 'backend_port', title: '后端端口'},
+            {field: 'proxy_path', title: 'upstream路径'},
+            {field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"}
+        ];
+
+function opFormatter(value, row, index) {
+    var html = "<a href='#' class='btn btn-xs btn-warning changeACL'>日志</a>";
+    {% if user.is_superuser == 1 or user.is_staff == 1%}
+    html += " <a href='#' class='btn btn-xs btn-info updateACL'>编辑</a>";
+    {% endif %}
+    html += " <a href='#' class='btn btn-xs btn-primary viewACL'>查看</a>";
+    {% if user.is_superuser == 1 or user.is_staff == 1%}
+    html += " <a href='#' class='btn btn-xs btn-danger delACL'>删除</a>";
+    {% endif %}
+    return html;
+}
+function envFormatter(value, row, index) {
+    var lb = row['lb'];
+    return lb['env'];
+}
+
+function nginxFormatter(value, row, index) {
+    var lb = row['lb'];
+    return lb['lb_service_name'];
+}
+
+function serverNameFormatter(value, row, index) {
+    var lb = row['lb'];
+    return lb['server_name'];
+}
+
+function portFormatter(value, row, index) {
+    var lb = row['lb'];
+    return lb['port'];
+}
+function sslportFormatter(value, row, index) {
+    var lb = row['lb'];
+    return lb['sslport'];
+}
+
+window.actionEvents = {
+    'click .updateACL': function (e, value, row, index) {
+        $("#createButton").hide();
+        $("#updateButton").show();
+        var id = row['id'];
+        var lb = row['lb'];
+        var name = row['name'];
+        var comment = row['comment'];
+        var segment = row['segment'];
+        var group = row['group'];
+        $("#server_name").val(lb['server_name']);
+        $("#env").val(lb['env']);
+        $("#port").val(lb['port']);
+
+        initCombobox({
+            renderTo: "lb_service_id",
+            url: "/api/app/service/?format=json&limit=10000&type=nginx",
+            defaultValue: lb['lb_service_id'],
+            responseHandler: function(data) {
+                var results = data.results;
+                var lists = [];
+                lists.push({text: '---', value: ''});
+                for(var i = 0 in results) {
+                    var row = results[i];
+                    t = {text: row.name, value: row.id};
+                    lists.push(t);
+                }
+                return lists;
+            }
+        });
+        $("#sslport").val(lb['sslport']);
+        $("#parameter").val(lb['parameter']);
+        $("#service_id").val(row['service_id']);
+        $("#path").val(row['path']);
+        $("#proxy_path").val(row['proxy_path']);
+        $("#backend_port").val(row['backend_port']);
+        $("#location_parameter").val(row['location_parameter']);
+        var url = "/api/lb/servicelb/" + id + "/?format=json"
+        $("#createForm").attr("action", url);
+    },
+    'click .viewACL': function (e, value, row, index) {
+        var lb = row['lb'];
+        window.open('/api/lb/nginxconf/' + lb['lb_service_name'] + '/?env=' + lb['env'])
+    },
+    'click .delACL': function (e, value, row, index) {
+        var id = row['id'];
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除该配置吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/lb/servicelb/" + id + "/",
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                try{
+                                    var json = $.parseJSON(data.responseText);
+                                    if(typeof json.detail != 'undefined') content = json.detail;
+                                } catch(e) {
+                                    content = "服务端错误"
+                                }
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    },
+    'click .changeACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#changeLogIFrame").attr('src', '/change/reschange/?resource=lb_servicelb&res_id=' + id);
+        $("#changeLogModal").modal('show');
+    }
+};
+
+function buttonStatus() {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length <= 0) {
+        $("#delete").addClass("disabled");
+    } else {
+        $("#delete").removeClass("disabled");
+    }
+}
+
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({                        {# 从url中获取数据到前台 #}
+    columns: columns,
+    url: "/api/lb/servicelb/?format=json&service_id={{ service_id }}",
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    responseHandler: function (res) {
+        $("#delete").addClass("disabled");
+        var data = {total: res.count, rows: res.results}
+        return data;
+    },
+    onCheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onUncheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onCheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    onUncheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if(typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function(i, field){
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+
+$("#createButton").on("click", function(e) {
+    var form = $("#createForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create(document.querySelector('#createButton'));
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'post',
+                url: "/api/lb/servicelb/?format=json",
+                success: function(data) {
+                    Ladda.stopAll();
+                    $("#createForm").resetForm();
+                    window.location.reload();
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    try {
+                        var json = $.parseJSON(data.responseText);
+                        if(typeof json.detail != 'undefined') content = json.detail;
+                    } catch(e) {
+                        content = "服务端错误";
+                    }
+                    $.alert({
+                        title: '新增失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#createForm").submit();
+});
+
+$("#updateButton").on("click", function(e) {
+    var form = $("#createForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#updateButton') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'patch',
+                success: function(data) {
+                    Ladda.stopAll();
+                    window.location.reload();
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    try {
+                        var json = $.parseJSON(data.responseText);
+                        if(typeof json.detail != 'undefined') content = json.detail;
+                    } catch(e) {
+                        content = "服务端错误";
+                    }
+                    $.alert({
+                        title: '修改失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#createForm").submit();
+});
+
+$("#delete").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ids = [];
+        for(var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除选中应用吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/lb/servicelb/?format=json",
+                            data: {id: ids},
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+});
+
+</script>
+</body>
+</html>

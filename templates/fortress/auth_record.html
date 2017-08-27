@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> 授权查询</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <!--内页存放内容-->
+                     <div class="inner-box inner-list-box">
+                        <div id="my_input" class="dan-table-menu form form-inline" >
+
+                            <div class="btn-group" role="group" aria-label="...">
+                                  <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-refresh"></span> 刷新
+                                  </button>
+                                <button type="button" id="delete" class="btn btn-sm btn-danger disabled">
+                                    <span class="glyphicon glyphicon-remove"></span> 删除
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="username" name="username" type="text" class="form-control searchForm" placeholder="用户名" >
+                                </form>
+                            </div>
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="host" name="host" type="text" class="form-control searchForm" placeholder="ip/主机名" >
+                                </form>
+                            </div>
+                        </div>
+                        <div id="my_grid">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block self_footer_js %}
+<script>
+
+$(".searchForm").on("change", function(e) {
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
+    }
+});
+
+var _top = $("#my_grid").offset().top;
+var height = $(window).height() - _top - 20;
+
+$("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+
+var columns = [
+                {field: 'chk', title: '复选框', checkbox: true},
+                {field: 'id', title: 'ID'},
+                {field: 'username', title: '用户名'},
+                {field: 'ip', title: 'ip'},
+                {field: 'role', title: '权限'},
+                {field: 'cuser', title: '授权人'},
+                {field: 'ctime', title: '创建时间'},
+                {field: 'expiration_time', title: '过期时间'},
+                {field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"}
+            ];
+
+window.actionEvents = {
+    'click .delACL': function (e, value, row, index) {
+        var id = row['id'];
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除该授权吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/fortress/authrecord/" + id + "/",
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+};
+
+function opFormatter(value, row, index) {
+    var html = " <a href='#' class='btn btn-xs btn-danger delACL'>删除</a>";
+    return html;
+}
+
+function buttonStatus() {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length <= 0) {
+        $("#delete").addClass("disabled");
+    } else {
+        $("#delete").removeClass("disabled");
+    }
+}
+
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+    columns: columns,
+    url: "/api/fortress/authrecord/?format=json",
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    responseHandler: function (res) {
+        $("#delete").addClass("disabled");
+        var rows = [];
+        var result = res.results;
+        for(var i in result) {
+            var t = result[i];
+            rows.push(t);
+        }
+        var data = {total: res.count, rows: rows}
+        return data;
+    },
+    onCheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onUncheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onCheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    onUncheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if(typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function(i, field){
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+$("#delete").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ids = [];
+        for(var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除选中授权记录吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/fortress/authrecord/?format=json",
+                            data: {id: ids},
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+});
+
+</script>
+
+{% endblock %}

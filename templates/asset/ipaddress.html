@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Bootstrap -->
+        <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/css/common.css" rel="stylesheet">
+        <link href="/static/css/dan.css" rel="stylesheet">
+        <link href="/static/css/loading.css" rel="stylesheet">
+        <link href="/static/css/icomoon.css" rel="stylesheet">
+        <!--[if lt IE 9]>
+          <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+          <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <script src="/static/js/jquery-1.11.3.min.js"></script>
+        <script src="/static/js/bootstrap.min.js"></script>
+        <script src="/static/js/reset.js"></script>
+        <script src="/static/js/comm.js"></script>
+
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+</head>
+
+<body style="padding-bottom: 10px;">
+    <div id="my_grid">
+    </div>
+
+    <script>
+
+    var _top = $("#my_grid").offset().top;
+    var height = $(window).height() - _top - 20;
+
+    $("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+
+    var columns = [
+                    {field: 'ip', title: 'IP'},
+                    {field: 'state', title: '状态'},
+                ];
+
+    var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+        columns: columns,
+        url: "/api/asset/ipaddress/?format=json&network_id={{ network_id }}",
+        pagination: true,
+        sidePagination: 'server',
+        pageSize: 256,
+        pageList: [256, 512, 1024],
+        clickToSelect: false,
+        striped: true,
+        responseHandler: function (res) {
+            var data = {total: res.count, rows: res.results}
+            return data;
+        },
+        queryParams: function (params) {
+
+            /**获取所有class为my-form的表单中的元素名和值*/
+            var form = $(".my-form");
+            if(typeof form != 'undefined') {
+                var arr = form.serializeArray();
+                $.each(arr, function(i, field){
+                    params[field.name] = field.value;
+                });
+            }
+            return params;
+        }
+    });
+
+    </script>
+
+</body>

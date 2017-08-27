@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load mytags %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+    <link rel="stylesheet" href="/static/libs/pie/style1.css"/>
+    <link rel="stylesheet" href="/static/libs/pie/style2.css"/>
+    <link rel="stylesheet" href="/static/libs/pie/style3.css"/>
+    <link rel="stylesheet" href="/static/libs/pie/style4.css"/>
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/libs/pie/echarts.js"></script>    {# 饼图 #}
+	<script src="/static/libs/pie/jquery.easypiechart.js"></script>
+
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> {{ app_name }}</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    {# default #}
+
+                    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+                    <div class="row">
+
+                        <div class="panel panel-default">       {# 边框1 #}
+                          <div class="panel-heading">
+                            <h3 class="panel-title">应用资源统计及分类</h3>
+                          </div>
+                          <div class="panel-body">
+
+                            <div id="main1" style="width:1000px;height:600px;" class="col-lg-6"></div>    {# 饼图 #}
+                            <div id="main2" style="width:1500px;height:600px;" class="col-lg-6"></div>    {# 柱形图 #}
+
+                          </div>
+                        </div>
+
+                    </div>
+
+
+                    <script type="text/javascript">
+                    // 基于准备好的dom，初始化echarts实例
+                    var myChart1 = echarts.init(document.getElementById('main1'));
+                    var myChart2 = echarts.init(document.getElementById('main2'));
+                    // 获取页面传来的参数
+                    var url = location.search;
+                    var strs= new Array();
+                    strs = url.split('=');
+
+                    $(function () {
+                         $.ajax({
+                             url: "/api/app/apps/" + parseInt(parseInt(strs[1])) + "/",
+                             type: "get",
+                             datatype : "json",
+                             success: function (data) {
+                                 // 指定饼图表的配置项和数据
+                                 option1 = {
+                                    title : {
+                                        text: '应用的服务器数量：' + data.app_hosts_counts,
+                                        subtext: '',
+                                        x:'center'
+                                    },
+                                    tooltip : {
+                                        trigger: 'item',
+                                        formatter: "{a} <br/>{b} : {c} ({d}%)"
+                                    },
+                                    legend: {
+                                        orient: 'vertical',
+                                        left: 'left',
+                                        data: ['物理机','虚拟机','ECS','SLB']
+                                    },
+                                    series : [
+                                        {
+                                            name: '服务器分类',
+                                            type: 'pie',
+                                            radius : '55%',
+                                            center: ['50%', '60%'],
+                                            data:[
+                                                {value:data.physic_counts, name:'物理机'},
+                                                {value:data.virtual_counts, name:'虚拟机'},
+                                                {value:data.ecs_counts, name:'ECS'},
+                                                {value:data.slb_counts, name:'SLB'},
+                                            ],
+                                            itemStyle: {
+                                                emphasis: {
+                                                    shadowBlur: 10,
+                                                    shadowOffsetX: 0,
+                                                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                                }
+                                            }
+                                        }
+                                    ]
+                                };
+                                 // 使用刚指定的配置项和数据显示图表。
+                                 myChart1.setOption(option1);
+
+{#                                 option2 = {#}           {# 饼图展示服务分类 #}
+{#                                    title : {#}
+{#                                        text: '服务分类及数量：' + (data.nginx_counts + data.redis_counts),#}
+{#                                        subtext: '',#}
+{#                                        x:'center'#}
+{#                                    },#}
+{#                                    tooltip : {#}
+{#                                        trigger: 'item',#}
+{#                                        formatter: "{a} <br/>{b} : {c} ({d}%)"#}
+{#                                    },#}
+{#                                    legend: {#}
+{#                                        orient: 'vertical',#}
+{#                                        left: 'left',#}
+{#                                        data: ['java','tomcat','nginx','Gearman','worker','zookeeper','redis','mysql','node.js','python','other','static','mongodb','apache','php','ActiveMQ']#}
+{#                                    },#}
+{#                                    series : [#}
+{#                                        {#}
+{#                                            name: '数据库',#}
+{#                                            type: 'pie',#}
+{#                                            radius : '55%',#}
+{#                                            center: ['50%', '60%'],#}
+{#                                            data:[#}
+{#                                                {value:data.server_type.java, name:'java'},#}
+{#                                                {value:data.server_type.tomcat, name:'tomcat'},#}
+{#                                                {value:data.server_type.nginx, name:'nginx'},#}
+{#                                                {value:data.server_type.Gearman, name:'Gearman'},#}
+{#                                                {value:data.server_type.worker, name:'worker'},#}
+{#                                                {value:data.server_type.zookeeper, name:'zookeeper'},#}
+{#                                                {value:data.server_type.redis, name:'redis'},#}
+{#                                                {value:data.server_type.mysql, name:'mysql'},#}
+{#                                                {value:data.server_type.node, name:'node.js'},#}
+{#                                                {value:data.server_type.python, name:'python'},#}
+{#                                                {value:data.server_type.other, name:'other'},#}
+{#                                                {value:data.server_type.static, name:'static'},#}
+{#                                                {value:data.server_type.mongodb, name:'mongodb'},#}
+{#                                                {value:data.server_type.node, name:'apache'},#}
+{#                                                {value:data.server_type.php, name:'php'},#}
+{#                                                {value:data.server_type.ActiveMQ, name:'ActiveMQ'},#}
+{#                                            ],#}
+{#                                            itemStyle: {#}
+{#                                                emphasis: {#}
+{#                                                    shadowBlur: 10,#}
+{#                                                    shadowOffsetX: 0,#}
+{#                                                    shadowColor: 'rgba(0, 0, 0, 0.5)'#}
+{#                                                }#}
+{#                                            }#}
+{#                                        }#}
+{#                                    ]#}
+{#                                };#}
+{#                                 // 使用刚指定的配置项和数据显示图表。#}
+{#                                 myChart2.setOption(option2);#}
+
+                                 option2 = {
+                                    title : {
+                                            text: '服务分类及数量',
+                                            subtext: '',
+                                            x:'center'
+                                        },
+                                    color: ['#91C7AE'],
+                                    tooltip : {
+                                        trigger: 'axis',
+                                        axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                                            type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                                        }
+                                    },
+                                    grid: {
+                                        left: '3%',
+                                        right: '4%',
+                                        bottom: '3%',
+                                        containLabel: true
+                                    },
+                                    xAxis : [
+                                        {
+                                            type : 'category',
+{#                                            data: ['java','tomcat','nginx','Gearman','worker','zookeeper','redis','mysql','node.js',#}
+{#                                                   'python','other','static','mongodb','apache','php','ActiveMQ'],#}
+                                            data : data.x,
+                                            axisTick: {
+                                                alignWithLabel: true
+                                            }
+                                        }
+                                    ],
+                                    yAxis : [
+                                        {
+                                            type : 'value'
+                                        }
+                                    ],
+                                    series : [
+                                        {
+                                            name:'直接访问',
+                                            type:'bar',
+                                            barWidth: '60%',
+{#                                            data:[data.server_type.java, data.server_type.tomcat, data.server_type.nginx, data.server_type.Gearman,#}
+{#                                                 data.server_type.worker, data.server_type.zookeeper, data.server_type.redis,data.server_type.mysql,#}
+{#                                                 data.server_type.node,data.server_type.python,data.server_type.other,data.server_type.static,#}
+{#                                                 data.server_type.mongodb,data.server_type.apache,data.server_type.php,data.server_type.ActiveMQ]#}
+                                            data: data.y
+                                        }
+                                    ]
+                                };
+                                 // 使用刚指定的配置项和数据显示图表。
+                                 myChart2.setOption(option2);
+
+                             },
+                             error: function (e, a){
+                                 alert(a);
+                             }
+                         })
+                    })
+
+                    </script>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+

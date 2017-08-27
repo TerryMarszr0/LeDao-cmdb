@@ -1,0 +1,901 @@
+{% extends 'base.html' %}
+{% load mytags %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/libs/pie/echarts.js"></script>    {# 饼图 #}
+
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> 角色管理</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <!--内页存放内容-->
+                     <div class="inner-box inner-list-box">
+                        <div id="my_input" class="dan-table-menu form form-inline">
+
+                            <div class="btn-group" role="group" aria-label="...">
+                                  <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-refresh"></span>
+                                  </button>
+                                <button type="button" id="add" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addModal" data-whatever="@mdo">
+                                    <span class="glyphicon glyphicon-plus"></span> 新增
+                                </button>
+                                <button type="button" id="delete" class="btn btn-sm btn-danger disabled">
+                                    <span class="glyphicon glyphicon-remove"></span> 删除
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="search" name="search" type="text" class="form-control searchForm" placeholder="组名" >
+                                </form>
+                            </div>
+
+                        </div>
+
+                        <div id="my_grid">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">新增映射信息</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="addMenuForm">
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">组名:</label>
+	            </div>
+	            <div class="col-lg-8">
+{#                    <select id="group_id" name="group_id" class="form-control">#}
+{#                        <option value="">组名：</option>#}
+{#                    </select>#}
+                    <input type="text" id='group_name' name="name" class="form-control required name" placeholder="新组名称"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+                <div class="col-lg-3" style="text-align: right">
+                    <span style="color:red">* </span><label for="_title" class="control-label">是否为默认组:</label>
+                </div>
+                <div class="col-lg-8">
+                    <select id="is_default" name="is_default" class="form-control required">
+                        <option value="0" selected>否</option>
+                        <option value="1">是</option>
+                    </select>
+                </div>
+            </div>
+          </div>
+
+{#          <div class="form-group">#}
+{#          	<div class="row">#}
+{#	          	<div class="col-lg-3" style="text-align: right">#}
+{#		            <label for="_title" class="control-label"></label>#}
+{#	            </div>#}
+{##}
+{#	            <div class="col-lg-8">#}
+{#                    #}
+{#                    <button type="button" id="add" class="btn btn-xs btn-info updateACL" data-toggle="modal" data-target="#weaverModal" data-whatever="@mdo">#}
+{#                        <span class="glyphicon"></span> 选择菜单#}
+{#                    </button>#}
+{#	            </div>#}
+{##}
+{#            </div>#}
+{#          </div>#}
+
+          <input type="hidden" id='menu_ids' name="menu_id[]" class="form-control required name" placeholder="菜单 ID:"/><br/>
+          <label for="_title" class="control-label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;菜单选择:</label>
+          <ul id="demo" style="list-style: none;">
+                {% for menu in all_menus %}
+						{% if menu.has_child %}
+                                <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="menu" value="{{ menu.id }}"/>{{ menu.name }}
+                                <ul style="list-style: none;">
+                                    {% for sub_menu in menu.children %}
+                                        <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="menu" value="{{ sub_menu.id }}"/>{{ sub_menu.name }}</li>
+                                    {% endfor %}
+                                </ul>
+						{% endif %}
+					            </li>
+			    {% endfor %}
+
+            </ul>
+
+
+{# ############################################################################################################################################################### #}
+{#          <div class="form-group">#}
+{#          	<div class="row">#}
+{#	          	<div class="col-lg-3" style="text-align: right">#}
+{#		            <label for="_title" class="control-label"></label>#}
+{#	            </div>#}
+{##}
+{#	            <div class="col-lg-8">#}
+{##}
+{#                    <button type="button" id="add" class="btn btn-xs btn-info updateACL" data-toggle="modal" data-target="#weaverModal" data-whatever="@mdo">#}
+{#                        <span class="glyphicon"></span> 选择菜单#}
+{#                    </button>#}
+{#	            </div>#}
+{##}
+{#            </div>#}
+{#          </div>#}
+{# ############################################################################################################################################################### #}
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="addMenuSubmit" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 提交 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">修改组信息</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="updateForm" action="">
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">组名:</label>
+	            </div>
+	            <div class="col-lg-8">
+{#                    <select id="_group_id" name="group_id" class="form-control">#}
+{#                        <option value="">组名：</option>#}
+{#                    </select>#}
+                    <input type="text" id='_group_name' name="name" class="form-control required name" placeholder="组名"/><br/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="row">
+                <div class="col-lg-3" style="text-align: right">
+                    <span style="color:red">* </span><label for="_title" class="control-label">是否为默认组:</label>
+                </div>
+                <div class="col-lg-8">
+                    <select id="_is_default" name="is_default" class="form-control required">
+                        <option value="0">否</option>
+                        <option value="1">是</option>
+                    </select>
+                </div>
+            </div>
+          </div>
+{#          <div class="form-group">#}
+{#          	<div class="row">#}
+{#	          	<div class="col-lg-3" style="text-align: right">#}
+{#		            <label for="_title" class="control-label">菜单 ID:</label>#}
+{#	            </div>#}
+{#	            <div class="col-lg-8">#}
+{#                    <input type="text" id='_menu_id' name="menu_id" class="form-control required name" placeholder="菜单 ID:"/><br/>#}
+{#                    <button type="button" id="add" class="btn btn-xs btn-info updateACL" data-toggle="modal" data-target="#weaverEditModal" data-whatever="@mdo">#}
+{#                        <span class="glyphicon"></span> 选择菜单#}
+{#                    </button>#}
+{#	            </div>#}
+{#            </div>#}
+{#          </div>#}
+          <input type="hidden" id='_menu_id' name="menu_id[]" class="form-control required name" placeholder="菜单 ID:"/><br/>
+          <label for="_title" class="control-label">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;菜单选择:</label>
+          <ul id="demoEdit" style="list-style: none;">
+                {% for menu in all_menus %}
+						{% if menu.has_child %}
+                                <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="menuEdit" value="{{ menu.id }}"/>{{ menu.name }}
+                                <ul style="list-style: none;">
+                                    {% for sub_menu in menu.children %}
+                                        <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="menuEdit" value="{{ sub_menu.id }}"/>{{ sub_menu.name }}</li>
+                                    {% endfor %}
+                                </ul>
+						{% endif %}
+					            </li>
+			    {% endfor %}
+
+          </ul>
+
+        </form>
+
+
+
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="updateSubmit" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 提交 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{#------------------------------------------------------------添加时的复选菜单------------------------------------------------------------#}
+{#<div class="modal fade" id="weaverModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">#}
+{#  <div class="modal-dialog" role="document">#}
+{#    <div class="modal-content">#}
+{#      <div class="modal-header">#}
+{#        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>#}
+{#        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">增加映射信息</label></h4>#}
+{#      </div>#}
+{#      <div class="modal-body">#}
+{#        <form id="weaverForm" name="frmmain" method="post">#}
+{#            <ul id="demo">#}
+{#                {% for menu in all_menus %}#}
+{#						{% if menu.has_child %}#}
+{#                                <li><input type="checkbox" name="menu" value="{{ menu.id }}"/>{{ menu.name }}    {# value=menu.id 是为了获取id #}
+{#                                <ul>#}
+{#                                    {% for sub_menu in menu.children %}#}
+{#                                        <li><input type="checkbox" name="menu" value="{{ sub_menu.id }}"/>{{ sub_menu.name }}</li>#}
+{#                                    {% endfor %}#}
+{#                                </ul>#}
+{#						{% endif %}#}
+{#					            </li>#}
+{#			    {% endfor %}#}
+
+{#                <li><input type="checkbox" name="menu" value="系统管理"/>系统管理#}
+{#                    <ul>#}
+{#                        <li><input type="checkbox" name="menu" value="查看用户"/>查看用户</li>#}
+{#                        <li><input type="checkbox" name="menu" value="查看菜单"/>查看菜单</li>#}
+{#                    </ul>#}
+{#                </li>#}
+{#                <li><input type="checkbox" name="menu" value="服务管理"/>服务管理#}
+{#                    <ul>#}
+{#                        <li><input type="checkbox" name="menu" value="查看业务线"/>查看业务线</li>#}
+{#                        <li><input type="checkbox" name="menu" value="产看应用"/>产看应用</li>#}
+{#                        <li><input type="checkbox" name="menu" value="查看服务"/>查看服务</li>#}
+{#                    </ul>#}
+{#                </li>#}
+{#                <li><input type="checkbox" name="menu" value="资产管理"/>资产管理#}
+{#                    <ul>#}
+{#                        <li><input type="checkbox" name="menu" value="查看资产"/>查看资产</li>#}
+{#                        <li><input type="checkbox" name="menu" value="产看机房"/>产看机房</li>#}
+{#                        <li><input type="checkbox" name="menu" value="查看镜像"/>查看镜像</li>#}
+{#                        <li><input type="checkbox" name="menu" value="查看配置"/>查看配置</li>#}
+{#                        <li><input type="checkbox" name="menu" value="查看网段"/>查看网段</li>#}
+{#                    </ul>#}
+{#                </li>#}
+{#                <li><input type="checkbox" name="menu" value="堡垒机管理"/>堡垒机管理#}
+{#                    <ul>#}
+{#                        <li><input type="checkbox" name="menu" value="授权申请"/>授权申请</li>#}
+{#                        <li><input type="checkbox" name="menu" value="我的授权"/>我的授权</li>#}
+{#                        <li><input type="checkbox" name="menu" value="授权审批"/>授权审批</li>#}
+{#                        <li><input type="checkbox" name="menu" value="授权查询"/>授权查询</li>#}
+{#                    </ul>#}
+{#                </li>#}
+{#                <li><input type="checkbox" name="menu" value="变更管理"/>变更管理#}
+{#                    <ul>#}
+{#                        <li><input type="checkbox" name="menu" value="变更查询"/>变更查询</li>#}
+{#                        <li><input type="checkbox" name="menu" value="任务查询"/>任务查询</li>#}
+{#                    </ul>#}
+{#                </li>#}
+{#            </ul>#}
+{#        </form>#}
+{#      </div>#}
+{#      <div class="modal-footer">#}
+{#      	<button type="button" id="weaverSubmit" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>#}
+{#        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>#}
+{#      </div>#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
+{#------------------------------------------------------------复选菜单------------------------------------------------------------#}
+{##}
+{#------------------------------------------------------------编辑时的复选菜单------------------------------------------------------------#}
+{#<div class="modal fade" id="weaverEditModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">#}
+{#  <div class="modal-dialog" role="document">#}
+{#    <div class="modal-content">#}
+{#      <div class="modal-header">#}
+{#        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>#}
+{#        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">修改菜单信息</label></h4>#}
+{#      </div>#}
+{#      <div class="modal-body">#}
+{#        <form id="weaverEditForm" name="frmmain" method="post">#}
+{#            <ul id="demoEdit">#}
+{#                {% for menu in all_menus %}#}
+{#						{% if menu.has_child %}#}
+{#                                <li><input type="checkbox" name="menuEdit" value="{{ menu.id }}"/>{{ menu.name }}#}
+{#                                <ul>#}
+{#                                    {% for sub_menu in menu.children %}#}
+{#                                        <li><input type="checkbox" name="menuEdit" value="{{ sub_menu.id }}"/>{{ sub_menu.name }}</li>#}
+{#                                    {% endfor %}#}
+{#                                </ul>#}
+{#						{% endif %}#}
+{#					            </li>#}
+{#			    {% endfor %}#}
+{##}
+{#            </ul>#}
+{#        </form>#}
+{#      </div>#}
+{#      <div class="modal-footer">#}
+{#      	<button type="button" id="weaverEditSubmit" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>#}
+{#        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>#}
+{#      </div>#}
+{#    </div>#}
+{#  </div>#}
+{#</div>#}
+{#------------------------------------------------------------------------------------------------------------------------#}
+
+<!-- 变更日志 -->
+<div class="modal fade" id="changeLogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+          <iframe id="changeLogIFrame" width="100%" height="750px;" style="border:0;" src=""></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 变更日志 -->
+
+
+{% endblock %}
+
+{% block self_footer_js %}
+
+<script>
+
+$(".searchForm").on("change", function(e) {              {# 刷新 my_table #}
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
+    }
+});
+
+//增加时 pid 的下拉菜单
+{#initCombobox({#}
+{#    renderTo: "group_id",#}
+{#    url: "/api/user/group/?format=json&limit=10000",#}
+{#    responseHandler: function(data) {#}
+{##}
+{#        var results = data.results;#}
+{#        var lists = [];#}
+{#        lists.push({text: '---', value: ''});#}
+{#        for(var i in results) {#}
+{#            var row = results[i];#}
+{#            t = {text: row.name, value: row.id};#}
+{#            lists.push(t);#}
+{#        }#}
+{#        return lists.reverse();#}
+{#    }#}
+{#{);#}
+
+
+
+
+var _top = $("#my_grid").offset().top;
+var height = $(window).height() - _top - 20;
+
+$("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+
+{#var columns = [#}
+{#                {field: 'chk', title: '复选框', checkbox: true},#}
+{#                {field: 'id', title: 'ID'},#}
+{#                {field: 'group_id', title: '组'},#}
+{#                {field: 'menu_id', title: '菜单 ID'},#}
+{#                {field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"},#}
+{#            ];#}
+
+
+var columns = [
+                {field: 'chk', title: '复选框', checkbox: true},
+                {field: 'id', title: 'ID'},
+                {field: 'name', title: '组名'},       {# 数据库中的字段名 #}
+                {field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"},
+            ];
+
+window.actionEvents = {
+    'click .updateACL': function (e, value, row, index) {
+
+{#        initCombobox({#}
+{#                defaultValue: row['name'],#}
+{#                renderTo: "_group_name",#}
+{#        });#}
+{##}
+{#        initCombobox({#}
+{#            defaultValue: row['menu_id'],#}
+{#            renderTo: row['_menu_id'],#}
+{#        });#}
+        var id = row['id'];
+        var name = row['name'];
+        var menu_list = row['menu_ids'];
+        var is_dafault = row['is_default'];
+
+        $("#_group_name").val(name);          {# 给这一列赋初始值 #}
+        $("#_is_default").val(is_dafault);
+
+        menuArray = menu_list.toString().split(',');   {# 将以 ，分隔的字符串分割为数组 #}
+
+        var checkbox = document.getElementsByName("menuEdit");     {# 将菜单相应的复选框都勾上 #}
+        //alert("checkbox的长度为："+checkbox.length);
+        for(var j = 0;j < checkbox.length; j++) {       {# 初始化复选框 #}
+                checkbox[j].checked = false;
+            }
+        for (var i = 0; i < menuArray.length; i++) {
+            for(var j = 0;j < checkbox.length; j++) {
+                if(checkbox[j].value == menuArray[i]){
+                    checkbox[j].checked = true;
+                    break;
+                }
+            }
+        }
+
+
+        var url = "/api/user/group/" + id + "/?format=json";
+        $("#updateForm").attr("action", url);
+    },
+    'click .delACL': function (e, value, row, index) {
+        var id = row['id'];
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除该菜单吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/user/group/" + id + "/",
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    },
+    'click .changeACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#changeLogIFrame").attr('src', '/change/reschange/?resource=auth_group&res_id=' + id);
+        $("#changeLogModal").modal('show');
+    }
+};
+
+function opFormatter(value, row, index) {
+    var html = "<a href='#' class='btn btn-xs btn-warning changeACL'>日志</a>";
+    {% if user.is_superuser == 1 or user.is_staff == 1%}
+    html += " <a href='#' class='btn btn-xs btn-info updateACL' data-toggle='modal' data-target='#updateModal' data-whatever='@mdo'>编辑</a>";
+    html += " <a href='#' class='btn btn-xs btn-danger delACL'>删除</a>";
+    {% endif %}
+    return html;
+}
+
+function buttonStatus() {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length <= 0) {
+        $("#delete").addClass("disabled");
+    } else {
+        $("#delete").removeClass("disabled");
+    }
+}
+
+{#列表显示#}
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+    columns: columns,
+    url: "/api/user/group/?format=json",
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    responseHandler: function (res) {
+        $("#delete").addClass("disabled");
+        var rows = [];
+        var result = res.results;
+        for(var i in result) {
+            var t = result[i]
+            rows.push(t);
+        }
+        var data = {total: res.count, rows: rows}
+        return data;
+    },
+    onCheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onUncheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onCheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    onUncheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if(typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function(i, field){
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+
+
+{#新增操作#}
+$("#addMenuSubmit").on("click", function(e) {
+    var checkbox = document.getElementsByName("menu");
+    var id = "";
+    for ( var i = 0; i < checkbox.length; i++) {
+        if(checkbox[i].checked){
+            id = id + parseInt(checkbox[i].value) + ","  {# 将 menu_id 添加进 id_list #}
+            checkbox[i].checked = false;    {# 将复选框取消 #}
+        }
+    }
+    id = id.substr(0,id.length-1);
+    $("#menu_ids").val(id);
+    var form = $("#addMenuForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#addMenuSubmit') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'post',
+                url: "/api/user/group/?format=json",
+                success: function(data) {
+                    $("#addMenuForm").resetForm();
+                    $('#addModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                    Ladda.stopAll();
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '新增失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#addMenuForm").submit();
+});
+
+{#更新操作#}
+$("#updateSubmit").on("click", function(e) {
+
+var checkbox = document.getElementsByName("menuEdit");
+    //alert("checkbox的长度为："+checkbox.length);
+    var id ="";
+    for ( var i = 0; i < checkbox.length; i++) {
+        if(checkbox[i].checked){
+            id = id + checkbox[i].value+",";
+            checkbox[i].checked = false;
+        }
+    }
+    id = id.substr(0,id.length-1);
+    $("#_menu_id").val(id);
+
+
+    var form = $("#updateForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#updateSubmit') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'patch',
+                success: function(data) {
+                    Ladda.stopAll();
+                    $("#updateForm").resetForm();
+                    $('#updateModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '修改失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#updateForm").submit();
+});
+
+{#删除操作#}
+$("#delete").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ids = [];
+        for(var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除选中映射关系吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/user/group_menu/?format=json",
+                            data: {id: ids},
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+});
+
+
+{#------------------------------------------------------------增加的复选菜单------------------------------------------------------------#}
+{#window.onload = function() {#}
+{#    var obj = document.getElementById('demo').getElementsByTagName('input');#}
+{#    for (var i = 0; i < obj.length; i ++) {#}
+{#        obj[i].onclick = function() {#}
+{#            //查找并选择/取消选择所有子项#}
+{#            var childrenObj = this.parentNode.getElementsByTagName('ul');#}
+{#            if (childrenObj.length > 0) {#}
+{#                for (var j = 0; j < childrenObj.length; j ++) {#}
+{#                    var o = childrenObj[j].getElementsByTagName('input');#}
+{#                    for (var k = 0; k < o.length; k ++) o[k].checked = this.checked;#}
+{#                }#}
+{#            }#}
+{##}
+{#            //递归方法检查并设置父选项选择状态#}
+{#            checkParent(this);#}
+{#        }#}
+{#    }#}
+{#    #}
+{#    var obj = document.getElementById('demo').getElementsByTagName('input');#}
+{#    for (var i = 0; i < obj.length; i ++) {#}
+{#        obj[i].onclick = function() {#}
+{#            //查找并选择/取消选择所有子项#}
+{#            var childrenObj = this.parentNode.getElementsByTagName('ul');#}
+{#            if (childrenObj.length > 0) {#}
+{#                for (var j = 0; j < childrenObj.length; j ++) {#}
+{#                    var o = childrenObj[j].getElementsByTagName('input');#}
+{#                    for (var k = 0; k < o.length; k ++) o[k].checked = this.checked;#}
+{#                }#}
+{#            }#}
+{##}
+{#            //递归方法检查并设置父选项选择状态#}
+{#            checkParent(this);#}
+{#        }#}
+{#    }#}
+{##}
+{##}
+{#function checkParent(obj) {#}
+{#    var parentObj = obj.parentNode.parentNode;#}
+{#    if (parentObj.id != 'demo') {#}
+{#      parentObj = parentObj.parentNode;#}
+{#      var FLAG = false; //标志位，true表示父级选项的所有子选项都是选中的，初始值为true，假设全部为选中#}
+{#      var o = parentObj.getElementsByTagName('input');#}
+{#      for (var i = 1; i < o.length; i ++) {#}
+{#          if (o[i].checked) {#}
+{#              FLAG = true;#}
+{#              break;#}
+{#          }#}
+{#      }#}
+{#      if (FLAG) o[0].checked = true;#}
+{#      else o[0].checked = false;#}
+{#      if (parentObj.parentNode.parentNode.id != 'demo') checkParent(o[0]);#}
+{#    }#}
+{##}
+{##}
+{##}
+{##}
+{#添加数据时选择菜单的操作#}
+{#$("#weaverSubmit").on("click", function(e) {#}
+{#    var checkbox = document.getElementsByName("menu");#}
+{#    //alert("checkbox的长度为："+checkbox.length);#}
+{#    var id = "";#}
+{#    for (var i = 0; i < checkbox.length; i++) {#}
+{#        if (checkbox[i].checked) {#}
+{#            id = id + checkbox[i].value + ",";#}
+{#            checkbox[i].checked = false;#}
+{#        }#}
+{#    }#}
+{#    id = id.substr(0, id.length - 1)#}
+{#    $("#menu_id").val(id);#}
+{#    $('#weaverModal').modal('hide');#}
+{#{);#}
+
+
+{#------------------------------------------------------------编辑的复选菜单------------------------------------------------------------#}
+window.onload = function() {
+    var obj = document.getElementById('demo').getElementsByTagName('input');
+    for (var i = 0; i < obj.length; i ++) {
+        obj[i].onclick = function() {
+            //查找并选择/取消选择所有子项
+            var childrenObj = this.parentNode.getElementsByTagName('ul');
+            if (childrenObj.length > 0) {
+                for (var j = 0; j < childrenObj.length; j ++) {
+                    var o = childrenObj[j].getElementsByTagName('input');
+                    for (var k = 0; k < o.length; k ++) o[k].checked = this.checked;
+                }
+            }
+
+            //递归方法检查并设置父选项选择状态
+            checkParent(this);
+        }
+    }
+
+    var obj = document.getElementById('demoEdit').getElementsByTagName('input');
+    for (var i = 0; i < obj.length; i ++) {
+        obj[i].onclick = function() {
+            //查找并选择/取消选择所有子项
+            var childrenObj = this.parentNode.getElementsByTagName('ul');
+            if (childrenObj.length > 0) {
+                for (var j = 0; j < childrenObj.length; j ++) {
+                    var o = childrenObj[j].getElementsByTagName('input');
+                    for (var k = 0; k < o.length; k ++) o[k].checked = this.checked;
+                }
+            }
+
+            //递归方法检查并设置父选项选择状态
+            checkEditParent(this);
+        }
+    }
+}
+
+function checkParent(obj) {
+    var parentObj = obj.parentNode.parentNode;
+    if (parentObj.id != 'demo') {
+      parentObj = parentObj.parentNode;
+      var FLAG = false; //标志位，true表示父级选项的所有子选项都是选中的，初始值为true，假设全部为选中
+      var o = parentObj.getElementsByTagName('input');
+      for (var i = 1; i < o.length; i ++) {
+          if (o[i].checked) {
+              FLAG = true;
+              break;
+          }
+      }
+      if (FLAG) o[0].checked = true;
+      else o[0].checked = false;
+      if (parentObj.parentNode.parentNode.id != 'demo') checkParent(o[0]);
+    }
+}
+
+
+function checkEditParent(obj) {
+    var parentObj = obj.parentNode.parentNode;
+    if (parentObj.id != 'demoEdit') {
+      parentObj = parentObj.parentNode;
+      var FLAG = false; //标志位，true表示父级选项的所有子选项都是选中的，初始值为true，假设全部为选中
+      var o = parentObj.getElementsByTagName('input');
+      for (var i = 1; i < o.length; i ++) {
+          if (o[i].checked) {
+              FLAG = true;
+              break;
+          }
+      }
+      if (FLAG) o[0].checked = true;
+      else o[0].checked = false;
+      if (parentObj.parentNode.parentNode.id != 'demoEdit') checkParent(o[0]);
+    }
+}
+
+{#编辑数据时选择菜单的操作#}
+{#$("#weaverEditSubmit").on("click", function(e) {#}
+{#    var checkbox = document.getElementsByName("menuEdit");#}
+{#    //alert("checkbox的长度为："+checkbox.length);#}
+{#    var id = "";#}
+{#    for (var i = 0; i < checkbox.length; i++) {#}
+{#        if (checkbox[i].checked) {#}
+{#            id = id + checkbox[i].value + ",";#}
+{#            checkbox[i].checked = false;#}
+{#        }#}
+{#    }#}
+{#    id = id.substr(0, id.length - 1);#}
+{#    $("#_menu_id").val(id);#}
+{#    $('#weaverEditModal').modal('hide');#}
+{#{);#}
+</script>
+
+{% endblock %}

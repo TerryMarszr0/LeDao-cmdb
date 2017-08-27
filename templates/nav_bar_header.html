@@ -1,0 +1,115 @@
+{% load humanize %}
+<nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+    <div class="navbar-header">
+        <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+        <form role="search" class="navbar-form-custom" method="get" action="">
+            <div class="form-group">
+                <input type="text" placeholder="搜索服务/ip/主机名..." class="form-control" name="search" id="top-search">
+            </div>
+        </form>
+    </div>
+    <ul class="nav navbar-top-links navbar-right">
+        <li>
+            <a href="/">
+                 <i class="fa fa-cog"></i>CMDB
+            </a>
+        </li>
+        <li class="dropdown">
+            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                 <i class="fa fa-list-ul"></i>工单
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="{{ ticket_url }}/home/">发起工单</a></li>
+                <li><a href="{{ ticket_url }}/workflow/myticket/">我的工单</a></li>
+                <li><a href="{{ ticket_url }}/workflow/todoticket/">待办工单</a></li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                 <span class="m-r-sm text-muted welcome-message"><i class="fa fa-question-circle" aria-hidden="true"></i>帮助</span>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/api/">API使用文档</a></li>
+                <li><a href="http://wiki.mwbyd.cn/pages/viewpage.action?pageId=6334750">堡垒机使用手册</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="{% url 'logout' %}">
+                <i class="fa fa-sign-out"></i> Log out
+            </a>
+        </li>
+    </ul>
+</nav>
+
+
+<!-- 快速搜索 -->
+<div class="modal fade" id="quickSearchModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">快速搜索</label></h4>
+      </div>
+      <div class="modal-body">
+          <table id="quick_search_table" data-show-columns="false"></table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭 </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 快速搜索 -->
+
+<script>
+
+$("#top-search").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        quickSearch();
+        return false;
+    }
+});
+
+var quick_columns = [
+            {field: 'service_id', title: '服务ID'},
+            {field: 'name', title: '服务 => ip'},
+            {field: '_op', title: '操作', formatter: opFormatter, events: "quickSearchEvents"}
+        ];
+window.quickSearchEvents = {
+    'click .quickSearchACL': function (e, value, row, index) {
+        var id = row['service_id'];
+        var ip = row['ip'];
+        window.location = "/host/?service_id=" + id + "&search=" + ip;
+    }
+};
+
+function opFormatter(value, row, index) {
+    var html = "<a href='#' class='quickSearchACL'><span class='glyphicon glyphicon-link'></span></a>";
+    return html;
+}
+
+function quickSearch() {
+    var search = $("#top-search").val();
+    $.get('/api/public/quicksearch/?format=json&search=' + search, {}, function(data) {
+        if(data.length == 1) {
+            window.location = "/host/?service_id=" + data[0].service_id + "&search=" + data[0].ip;
+        } else if (data.length > 0) {
+            var _table = $('#quick_search_table').bootstrapTable('destroy').bootstrapTable({
+                columns: quick_columns,
+                pagination: false,
+                clickToSelect: false,
+                striped: true,
+                data: data
+            });
+            $("#quickSearchModal").modal('show');
+        } else {
+            $.alert({
+                title: '提示',
+                content: '搜索不到服务或主机'
+            });
+        }
+    });
+}
+
+</script>

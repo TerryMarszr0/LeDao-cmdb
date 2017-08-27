@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5>
+                        {% if service %}
+                        <a title="返回" href="" id="go_back" onclick="javascript:history.go(-1);"><span class="glyphicon glyphicon-arrow-left"></span></a>&nbsp;&nbsp;当前服务为: {{ service.app_name }}/{{ service.name }}
+                        {% else %}
+                        资产列表
+                        {% endif %}
+                    </h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <!--内页存放内容-->
+                     <div class="inner-box inner-list-box">
+                        <div id="my_input" class="dan-table-menu form form-inline" >
+                            <div class="form-group">
+                                <div class="btn-group" role="group" aria-label="...">
+                                    {% if user.is_superuser == 1 or user.is_staff == 1%}
+                                      <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success" title="刷新">
+                                        <span class="glyphicon glyphicon-refresh"></span>
+                                      </button>
+                                     <button type="button" id="add" class="btn btn-sm btn-primary" title="新增">
+                                        <span class="glyphicon glyphicon-plus"></span>
+                                     </button>
+                                    <!--
+                                     <button type="button" id="sync_aliyun" class="btn btn-sm btn-danger ladda-button" title="同步阿里云主机">
+                                        <span class="ladda-label"><span class="glyphicon glyphicon-cloud-download"></span></span>
+                                     </button>
+                                     -->
+                                     <div class="btn-group" role="group" aria-label="...">
+                                          <button type="button" id="server_op_button" class="btn btn-sm btn-info dropdown-toggle disabled" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            主机操作 <span class="caret"></span>
+                                          </button>
+                                          <ul class="dropdown-menu" style="min-width: 100px;">
+                                            <li>
+                                                <a style="color: #05BBB2;" id="auth_host"  data-toggle="modal" data-target="#authModal" data-whatever="@mdo">
+                                                    <span class="glyphicon glyphicon-plus"></span> 主机授权
+                                                </a>
+                                            </li>
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #05BBB2;" id="mount_host" title="将主机挂载到新的服务中<>br/注意:原有的服务不变" data-toggle="modal" data-target="#mountModal" data-whatever="@mdo">
+                                                    <span class="glyphicon glyphicon-arrow-right"></span> 批量挂载
+                                                </a>
+                                            </li>
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #ec971f;" id="change_server_state">
+                                                    <span class="glyphicon glyphicon-pencil"></span> 修改状态
+                                                </a>
+                                            </li>
+                                          {% if service.id > 0 %}
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #ec971f;" id="change_server_upstream_state">
+                                                    <i class="fa fa-sitemap"></i> Upstream
+                                                </a>
+                                            </li>
+                                          {% endif %}
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #d9534f;" id="change_server_app" title="将主机移动到新的服务中<>br/注意:会删除原来的服务" data-toggle="modal" data-target="#changeserviceModal" data-whatever="@mdo">
+                                                    <span class="glyphicon glyphicon-move"></span> 批量移动
+                                                </a>
+                                            </li>
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #d9534f;" id="piliang_delete">
+                                                    <span class="glyphicon glyphicon-remove"></span> 批量删除
+                                                </a>
+                                            </li>
+                                            {% if service %}
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #d9534f;" id="piliang_reduce">
+                                                    <span class="glyphicon glyphicon-arrow-left"></span> 批量卸载
+                                                </a>
+                                            </li>
+                                            {% endif %}
+                                          </ul>
+                                    </div>
+                                    {% if service %}
+                                     <div class="btn-group" role="group" aria-label="...">
+                                          <button type="button" class="btn btn-sm btn-success dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            服务操作 <span class="caret"></span>
+                                          </button>
+                                          <ul class="dropdown-menu" style="min-width: 100px;">
+                                            <li>
+                                                <a style="color: #05BBB2;" id="app_auto_expansion"  data-toggle="modal" data-target="#autoExpansionModal" data-whatever="@mdo">
+                                                    <span class="glyphicon glyphicon-plus"></span> 自动扩容
+                                                </a>
+                                            </li>
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #05BBB2;" id="app_ip_expansion"  data-toggle="modal" data-target="#ipExpansionModal" data-whatever="@mdo">
+                                                    <span class="glyphicon glyphicon-arrow-right"></span> 按IP扩容
+                                                </a>
+                                            </li>
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #ec971f;" class="app_config">
+                                                    <span class="glyphicon glyphicon-cog"></span> 服务配置
+                                                </a>
+                                            </li>
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #ec971f;" class="service_lb" id="service_lb">
+                                                    <i class="fa fa-sitemap"></i> 负载均衡
+                                                </a>
+                                            </li>
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #d9534f;" id="app_edit">
+                                                    <span class="glyphicon glyphicon-info-sign"></span> 修改信息
+                                                </a>
+                                            </li>
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #d9534f;" class="app_delete" id="app_delete">
+                                                    <span class="glyphicon glyphicon-remove"></span> 服务删除
+                                                </a>
+                                            </li>
+                                            <li role="separator" class="divider"></li>
+                                            <li>
+                                                <a style="color: #d9534f;" id="app_ip_reduce"  data-toggle="modal" data-target="#ipReduceModal" data-whatever="@mdo">
+                                                    <span class="glyphicon glyphicon-arrow-left"></span> 按IP缩容
+                                                </a>
+                                            </li>
+                                          </ul>
+                                    </div>
+                                    {% endif %}
+                                {% else %}
+                                    <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success" title="刷新">
+                                        <span class="glyphicon glyphicon-refresh"></span> 刷新
+                                      </button>
+                                {% endif %}
+                                 </div>
+                            </div>
+
+                            {% if not service %}
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="search_group" name="group" class="form-control searchForm">
+                                        <option value="" selected>业务线</option>
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="search_app_id" name="app_id" class="form-control searchForm">
+                                        <option value="" selected>应用</option>
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="search_service_id" name="service_id" class="form-control searchForm">
+                                        <option value="" selected>服务</option>
+                                    </select>
+                                </form>
+                            </div>
+                            {% endif %}
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="room_id" name="room_id" class="form-control searchForm">
+                                        <option value="" selected>机房</option>
+                                        {% for t in rooms %}
+                                        <option value="{{ t.id }}">{{ t.cn_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="env" name="env" class="form-control searchForm">
+                                        <option value="" selected>环境</option>
+                                        {% for t in env %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="state" name="state" class="form-control searchForm">
+                                        <option value="" selected>状态</option>
+                                        {% for t in state %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="host_type" name="type" class="form-control searchForm">
+                                        <option value="" selected>设备类型</option>
+                                        {% for t in host_types %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="host_attribute" name="attribute" class="form-control searchForm">
+                                        <option value="" selected>属性</option>
+                                        {% for t in attribute %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="service_type" name="service_type" class="form-control searchForm">
+                                        <option value="" selected>服务类型</option>
+                                        {% for t in service_types %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="img_id" name="img_id" class="form-control searchForm">
+                                        <option value="" selected>系统镜像</option>
+                                        {% for t in img_list %}
+                                        <option value="{{ t.id }}">{{ t.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="conf_id" name="conf_id" class="form-control searchForm">
+                                        <option value="" selected>配置</option>
+                                        {% for t in confs %}
+                                        <option value="{{ t.id }}">{{ t.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="search" name="search" type="text" class="form-control searchForm" placeholder="主机名/ip" value="{{ search }}">
+                                </form>
+                            </div>
+                        </div>
+                        </div>
+
+                        <div id="leaf_grid">
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- modal的html代码在另外一个页面 -->
+{% include 'host/app_host_modal.html' %}
+
+
+{% endblock %}
+
+{% block self_footer_js %}
+
+{% include 'host/app_host_js.html' %}
+
+{% endblock %}

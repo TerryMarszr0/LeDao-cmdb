@@ -1,0 +1,31 @@
+@CHARSET "UTF-8";
+
+.text-left {
+	word-wrap:break-word;
+}
+.bootgrid-table td {
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+}
+.bootgrid-header {
+	margin: 0px 0px 15px 0px;
+}
+.pagination {
+           float: right;
+	 display: inline-block;
+	 padding-right: 0;
+	 margin: 0px 0px;
+	 border-radius: 4px;
+}
+.container-fluid {
+    padding-right: 0px;
+    padding-left: 0px; 
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.dropdown-menu {
+    min-width: 120px;
+}

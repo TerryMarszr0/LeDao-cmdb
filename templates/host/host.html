@@ -1,0 +1,431 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> 资产列表</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <!--内页存放内容-->
+                     <div class="inner-box inner-list-box">
+                        <div id="my_input" class="dan-table-menu form form-inline" >
+                            <div class="btn-group" role="group" aria-label="...">
+                                  <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-refresh"></span>
+                                  </button>
+                                <button type="button" id="add" class="btn btn-sm btn-primary">
+                                    <span class="glyphicon glyphicon-plus"></span> 新增
+                                </button>
+                                <button type="button" id="delete" class="btn btn-sm btn-danger disabled">
+                                    <span class="glyphicon glyphicon-remove"></span> 删除
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="app_id" name="app_id" class="form-control searchForm">
+                                        <option value="" selected>应用</option>
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="service_id" name="service_id" class="form-control searchForm">
+                                        <option value="" selected>服务</option>
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="room_id" name="room_id" class="form-control searchForm">
+                                        <option value="" selected>机房</option>
+                                        {% for t in rooms %}
+                                        <option value="{{ t.id }}">{{ t.cn_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="env" name="env" class="form-control searchForm">
+                                        <option value="" selected>环境</option>
+                                        {% for t in env %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="state" name="state" class="form-control searchForm">
+                                        <option value="" selected>状态</option>
+                                        {% for t in state %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="host_type" name="type" class="form-control searchForm">
+                                        <option value="" selected>设备类型</option>
+                                        {% for t in host_types %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="host_attribute" name="attribute" class="form-control searchForm">
+                                        <option value="" selected>属性</option>
+                                        {% for t in attributes %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="service_type" name="service_type" class="form-control searchForm">
+                                        <option value="" selected>服务类型</option>
+                                        {% for t in types %}
+                                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="img_id" name="img_id" class="form-control searchForm">
+                                        <option value="" selected>系统镜像</option>
+                                        {% for t in img_list %}
+                                        <option value="{{ t.id }}">{{ t.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <select id="conf_id" name="conf_id" class="form-control searchForm">
+                                        <option value="" selected>配置</option>
+                                        {% for t in confs %}
+                                        <option value="{{ t.id }}">{{ t.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="search" name="search" type="text" class="form-control searchForm" placeholder="主机名/ip" >
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="leaf_grid">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 变更日志 -->
+<div class="modal fade" id="changeLogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+          <iframe id="changeLogIFrame" width="100%" height="750px;" style="border:0;" src=""></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 变更日志 -->
+
+{% endblock %}
+
+{% block self_footer_js %}
+<script>
+
+$(".searchForm").on("change", function(e) {
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
+    }
+});
+
+initCombobox({
+    renderTo: "app_id",
+    url: "/api/app/app/?format=json&limit=10000",
+    defaultValue: "",
+    responseHandler: function(data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for(var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.name, value: row.id};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+
+initCombobox({
+    renderTo: "service_id",
+    url: "/api/app/service/?format=json&limit=10000",
+    defaultValue: "",
+    responseHandler: function(data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for(var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.name, value: row.id};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+
+function buttonStatus() {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length <= 0) {
+        $("#delete").addClass("disabled");
+    } else {
+        $("#delete").removeClass("disabled");
+    }
+}
+
+window.actionEvents = {
+    'click .updateACL': function (e, value, row, index) {
+        var id = row['id'];
+        window.location = "/host/edit/?host_id=" + id;
+    },
+    'click .delACL': function (e, value, row, index) {
+        var id = row['id'];
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除该设备吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/host/host/" + id + "/",
+                            success: function(data) {
+                                window.location.reload();
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    },
+    'click .changeACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#changeLogIFrame").attr('src', '/change/reschange/?resource=host_hosts&res_id=' + id);
+        $("#changeLogModal").modal('show');
+    }
+};
+
+function opFormatter(value, row, index) {
+    var html = "<a href='#' class='btn btn-xs btn-warning changeACL'>日志</a>";
+    html += " <a href='#' class='btn btn-xs btn-info updateACL' data-toggle='modal' data-target='#updateModal' data-whatever='@mdo'>编辑</a>";
+    html += " <a href='#' class='btn btn-xs btn-danger delACL'>删除</a>";
+    return html;
+}
+
+$("#leaf_grid").html('<table id="my_table" data-show-columns="false"></table>');
+var columns = [
+    {field: 'chk', title: '复选框', checkbox: true},
+    {field: 'id', title: 'ID'},
+    {field: 'service_name', title: '服务'},
+    {field: 'hostname', title: '主机名'},
+    {field: 'ip', title: 'ip'},
+    {field: 'attribute', title: '属性'},
+    {field: 'room_cname', title: '机房'},
+    {field: 'state', title: '状态'},
+    {field: 'env', title: '环境'},
+    {field: 'os_name', title: '设备'},
+    {field: 'cpu', title: 'CPU'},
+    {field: 'memory', title: '内存'},
+    {field: 'amount', title: '费用'},
+    {field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"}
+];
+
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+    columns: columns,
+    url: "/api/host/host/?format=json",
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    responseHandler: function (res) {
+        var rows = [];
+        for(var i in res.results) {
+            var t = res.results[i];
+            t['service_name'] = t['service_name'].join("<br/>");
+            rows.push(t);
+        }
+        var data = {
+            total: res.count,
+            rows: rows
+        }
+        buttonStatus();
+        return data;
+    },
+    onCheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onUncheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onCheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    onUncheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if (typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function (i, field) {
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+$("#add").on("click", function(e) {
+    window.location = '/host/addhost/'
+});
+
+$("#delete").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ids = [];
+        for(var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除选中主机吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/host/host/?format=json",
+                            data: {id: ids},
+                            success: function(data) {
+                                window.location.reload();
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+});
+</script>
+
+{% endblock %}

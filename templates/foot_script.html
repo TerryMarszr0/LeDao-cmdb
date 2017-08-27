@@ -1,0 +1,48 @@
+<!-- Mainly scripts -->
+<script src="/static/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="/static/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="/static/js/bootstrap-dialog.js"></script>
+<script src="/static/js/mindmup-editabletable.js"></script>
+<script src="/static/js/plugins/fullcalendar/moment.min.js"></script>
+<script src="/static/js/plugins/fullcalendar/fullcalendar.min.js"></script>
+
+<!-- Custom and plugin javascript -->
+<script src="/static/js/inspinia.js"></script>
+<script src="/static/js/plugins/pace/pace.min.js"></script>
+
+<!-- Peity -->
+<script src="/static/js/plugins/peity/jquery.peity.min.js"></script>
+
+<!-- Peity -->
+<script src="/static/js/demo/peity-demo.js"></script>
+
+<!-- pop windows layer-->
+<script src="/static/js/layer/layer.js"></script>
+
+<!-- highcharts -->
+<script src="/static/js/highcharts/highcharts.js"></script>
+
+
+<script src="/static/js/dropzone/dropzone.js"></script>
+<!-- active menu -->
+<script>
+    var path = document.location.pathname;
+    var element = null;
+    $(".menu-path").each(function(){
+        var url = $(this).attr('href');
+        if(path == url) {
+            element = $(this);
+            return
+        } else if(path.indexOf(url) == 0) {
+            if(element == null) {
+                element = $(this);
+            }
+        }
+    });
+    if(element) {
+        element.parent().addClass('active');
+        element.parent().parent().addClass('active');
+        element.parent().parent().parent().addClass('active');
+        element.parent().parent().parent().parent().addClass('active');
+    }
+</script>

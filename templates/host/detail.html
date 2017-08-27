@@ -1,0 +1,327 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/upload/fileinput.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/loading.js"></script>
+    <script src="/static/libs/upload/ajaxfileupload.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> <a title="返回" href="" id="go_back" onclick="history.back(-1);"><span class="glyphicon glyphicon-arrow-left"></span></a>&nbsp;&nbsp;主机详情信息</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <div id="rtn_msg" class="alert alert-success" role="alert" style="display: none"></div>
+
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <div class="panel panel-default">
+                                  <div class="panel-heading">
+                                    <h3 class="panel-title">基础信息</h3>
+                                  </div>
+                                  <div class="panel-body">
+                                      <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-lg-2">
+                                                <label for="_title" class="control-label">主机名:</label>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                {{ name |default:'' }}
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label for="_title" class="control-label">类型:</label>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                {{ type |default:'' }}
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-2">
+                                                <label for="_title" class="control-label">属性:</label>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                {{ attribute |default:'' }}
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label for="_title" class="control-label">阿里云id:</label>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                {{ aliyun_id |default:0 }}
+                                            </div>
+                                        </div>
+
+                                          <div class="row">
+                                            <div class="col-lg-2">
+                                                <label for="_title" class="control-label">所属机房:</label>
+                                            </div>
+                                            {% if room_name == 'idc' %}
+                                                <div class="dropdown col-lg-4">
+                                                    <a class="dropdown-toggle count-info" data-toggle="dropdown" href="#">
+                                                        {{ room_name }}
+                                                    </a>
+                                                    <ul class="list-group pull-right dropdown-navbar navbar-pink dropdown-menu dropdown-close" aria-labelledby="dropdown" style="width: 300px;">
+                                                        <li class="dropdown-header">
+                                                            idc 机房信息
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <div class="aa">机柜id : {{ rack_id |default:0 }}</div>
+                                                            <div class="bb">U位 : {{ u |default:0}}</div>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            {% else %}
+                                                <div class="col-lg-4">
+                                                    {{ room_name |default:'' }}
+                                                </div>
+                                            {% endif %}
+                                            <div class="col-lg-2">
+                                                <label for="_title" class="control-label">状态:</label>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                {{ state | default:'' }}
+                                            </div>
+                                        </div>
+
+                                      <div class="row">
+                                            <div class="col-lg-2">
+                                                <label for="_title" class="control-label">型号 : </label>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                {{ model_id |default:0 }}
+                                            </div>
+                                            <div class="col-lg-2">
+                                                <label for="_title" class="control-label">序列号 : </label>
+                                            </div>
+                                            <div class="col-lg-4">
+                                                {{ sn |default:0 }}
+                                            </div>
+                                        </div>
+
+                                      </div>
+                                        {% block ticketDetail %}{% endblock %}
+                                  </div>
+                                </div>
+
+                                <div class="panel panel-default">
+                                  <div class="panel-heading">
+                                    <h3 class="panel-title">网络信息</h3>
+                                  </div>
+                                      <div class="panel-body">
+                                          <div class="form-group">
+                                            <div class="row">
+                                                <div class="col-lg-2">
+                                                    <label for="_title" class="control-label">ip:</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    {{ ip |default:'' }}
+                                                </div>
+                                            </div>
+                                            {% if getInfoState %}
+                                                <div class="row">
+                                                    <div class="col-lg-2">
+                                                        <label for="_title" class="control-label">网段:</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        {{ network |default:'' }}
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <label for="_title" class="control-label">网关:</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        {{ gateway |default:'' }}
+                                                    </div>
+                                                </div>
+                                                  <div class="row">
+                                                    <div class="col-lg-2">
+                                                        <label for="_title" class="control-label">掩码:</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        {{ netmask |default:'' }}
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <label for="_title" class="control-label">fqdn:</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        {{ fqdn |default:'' }}
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-2">
+                                                        <label for="_title" class="control-label">mac:</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        {{ mac |default:'' }}
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <label for="_title" class="control-label">网卡:</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                            <div class="device">device list :
+                                                                {% for net_work_card in network_card_list %}
+                                                                    {{ net_work_card }}
+                                                                {% endfor %}
+                                                            </div>
+                                                        
+                                                            <div class="macaddress">macaddress : {{ macaddress }}</div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                          </div>
+                                      </div>
+
+                                </div>
+
+                                {% if getInfoState %}
+                                    <div class="panel panel-default">
+                                      <div class="panel-heading">
+                                        <h3 class="panel-title">系统信息</h3>
+                                      </div>
+                                          <div class="panel-body">
+                                              <div class="form-group">
+                                                <div class="row">
+                                                    <div class="col-lg-2">
+                                                        <label for="_title" class="control-label">操作系统名称:</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        {{ os_name |default:'' }}
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <label for="_title" class="control-label">内核版本:</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        {{ kernel |default:'' }}
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-lg-2">
+                                                        <label for="_title" class="control-label">cpu:</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        {{ cpu |default:'' }}
+                                                    </div>
+                                                    <div class="col-lg-2">
+                                                        <label for="_title" class="control-label">内存:</label>
+                                                    </div>
+                                                    <div class="col-lg-4">
+                                                        {{ memory |default:'' }}
+                                                    </div>
+                                                </div>
+                                              </div>
+                                          </div>
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="col-lg-4">
+                                <div class="panel panel-default">
+                                  <div class="panel-heading">
+                                    <h3 class="panel-title">所属应用/服务</h3>
+                                  </div>
+                                  <div class="panel-body">
+                                      <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-lg-3">
+                                                <label for="_title" class="control-label">所属应用:</label>
+                                            </div>
+                                            <div class="col-lg-8">
+                                                {{ apps }}
+                                            </div>
+                                        </div>
+                                      </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-lg-3">
+                                                <label for="_title" class="control-label">所属服务:</label>
+                                            </div>
+                                                <div class="col-lg-8">
+                                                    {{ services }}
+                                                </div>
+                                        </div>
+                                    </div>
+                                  </div>
+                              </div>
+                              {% if have_virtual_list %}
+                                  <div class="panel panel-default">
+                                      <div class="panel-heading">
+                                        <h3 class="panel-title">虚拟机列表</h3>
+                                      </div>
+                                      <div class="panel-body">
+                                          <div class="form-group">
+                                            <div class="row">
+                                                <div class="col-lg-3">
+                                                    <label for="_title" class="control-label">虚拟机列表:</label>
+                                                </div>
+                                                <div class="col-lg-8">
+                                                    {{ virtual_machines }}
+                                                </div>
+                                            </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              {% elif type == 'vm' %}
+                                  <div class="panel panel-default">
+                                      <div class="panel-heading">
+                                        <h3 class="panel-title">宿主机ip</h3>
+                                      </div>
+                                      <div class="panel-body">
+                                          <div class="form-group">
+                                            <div class="row">
+                                                <div class="col-lg-3">
+                                                    <label for="_title" class="control-label">宿主机ip:</label>
+                                                </div>
+                                                <div class="col-lg-8">
+                                                    {{ host_ip }}
+                                                </div>
+                                            </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              {% endif %}
+                            </div>
+
+                        </div>
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

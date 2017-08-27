@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+{% load mytags %}
+{% block content %}
+    {% include 'nav_cat_bar.html' %}
+
+    {% block self_head_css_js %}
+        <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+        <link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+        <link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css"/>
+        <link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css"/>
+        <link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css"/>
+        <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css"/>
+        <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css"/>
+        <link rel="stylesheet" href="/static/libs/pie/style1.css"/>
+        <link rel="stylesheet" href="/static/libs/pie/style2.css"/>
+        <link rel="stylesheet" href="/static/libs/pie/style3.css"/>
+        <link rel="stylesheet" href="/static/libs/pie/style4.css"/>
+
+        <script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+        <script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+        <script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+        <script src="/static/js/jquery.form.js"></script>
+        <script src="/static/js/jquery.validate.js"></script>
+        <script src="/static/libs/select2/js/select2.full.min.js"></script>
+        <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+        <script src="/static/libs/pie/echarts.js"></script>    {# 饼图 #}
+        {#    <script src="/static/libs/theme/dark.js"></script>#}
+        <script src="/static/libs/pie/jquery.easypiechart.js"></script>
+
+    {% endblock %}
+
+    <div class="wrapper wrapper-content animated fadeInRight">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins" id="all">
+                    <div class="ibox-title">
+                        <h5> {{ service_name }}</h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                                <i class="fa fa-wrench"></i>
+                            </a>
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="ibox-content">
+                        <div class="row">  {# 一行分两列 #}
+                            <div class="col-lg-6 my_chart1">
+
+                                <div class="panel panel-default"> {# 加边框 #}
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">cpu 使用率</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div id="main1" style="width:750px;height:400px;"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="col-lg-6 my_chart2">
+                                {# cn_shanghai_a #}
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">cpu 负载</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div id="main2" style="width:750px;height:400px;"></div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6 my_chart3">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">内存使用</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div id="main3" style="width:750px;height:400px;"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="col-lg-6 my_chart4">
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">流量</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div id="main4" style="width:750px;height:400px;"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        var url = location.search;
+        var strs = new Array();
+        strs = url.split('=');
+
+        $(function () {
+            $.ajax({
+                url: "/api/app/serviceinformationshow/" + parseInt(strs[1]) + "/",
+                type: "get",
+                datatype: "json",
+
+                success: function (data) {
+                    var myChart1 = echarts.init(document.getElementById('main1'));
+                    option1 = {
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['最大值', '最小值', '平均值']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'time'
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [
+                            {
+                                name: '最大值',
+                                type: 'line',
+                                data: data.cpu_usage_rate.max
+                            },
+                            {
+                                name: '最小值',
+                                type: 'line',
+                                data: data.cpu_usage_rate.min
+                            },
+                            {
+                                name: '平均值',
+                                type: 'line',
+                                data: data.cpu_usage_rate.avg
+                            },
+                        ]
+                    };
+                    myChart1.setOption(option1);
+
+                    var myChart2 = echarts.init(document.getElementById('main2'));
+                    option2 = {
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['最大值', '最小值', '平均值']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'time'
+                        },
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [
+                            {
+                                name: '最大值',
+                                type: 'line',
+                                data: data.cpu_load.max
+                            },
+                            {
+                                name: '最小值',
+                                type: 'line',
+                                data: data.cpu_load.min
+                            },
+                            {
+                                name: '平均值',
+                                type: 'line',
+                                data: data.cpu_load.avg
+                            },
+                        ]
+                    };
+                    myChart2.setOption(option2);
+
+                    var myChart3 = echarts.init(document.getElementById('main3'));
+                    option3 = {
+                        tooltip: {
+                            trigger: 'axis',
+                            // 弹出框动态显示单位
+                            formatter: function (params) {
+
+                                var msg = "";
+
+                                //alert(JSON.stringify(params));
+
+                                for (x in params) {
+                                    if ((params[x].value[1] / (1024 * 1024 * 1024)) >= 1) {
+
+                                        // G
+                                        msg += params[x].seriesName + " : " + (params[x].value[1] / (1024 * 1024 * 1024)).toFixed(2) + ' G <br />';
+
+                                    } else if ((params[x].value[1] / (1024 * 1024)) >= 1) {
+
+                                        // M
+                                        msg += params[x].seriesName + " : " + (params[x].value[1] / (1024 * 1024)).toFixed(2) + ' M <br />';
+
+                                    } else if ((params[x].value[1] / (1024)) >= 1) {
+
+                                        // K
+                                        msg += params[x].seriesName + " : " + (params[x].value[1] / (1024)).toFixed(2) + " K <br />";
+
+                                    } else if ((params[x].value[1] / (1024)) < 1 && (params[x].value[1] / (1024)) > 0) {
+
+                                        // byte
+                                        msg += params[x].seriesName + " : " + params[x].value[1] + " byte<br />";
+
+                                    } else {
+
+                                        // 0
+                                        msg += params[x].seriesName + " : 0 byte<br />";
+
+                                    }
+                                }
+                                return msg;
+                            }
+                        },
+                        legend: {
+                            data: ['最大值', '最小值', '平均值']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'time'
+                        },
+                        yAxis: {
+                            type: 'value',
+                            // Y 轴显示单位(动态显示则会出现Y轴单位不统一)
+                            axisLabel: {
+                                formatter: function (value, index) {
+
+{#                                    if ((value / (1024 * 1024 * 1024)) > 1) {#}
+{##}
+{#                                        return (value / (1024 * 1024 * 1024)).toFixed(2) + " G";#}
+{#                                        #}
+{#                                    } else if ((value / (1024 * 1024)) > 1) {#}
+{##}
+{#                                        return (value / (1024 * 1024)).toFixed(2) + " M";#}
+{##}
+{#                                    } else if ((value / (1024)) > 1) {#}
+{##}
+{#                                        return (value / (1024)).toFixed(2) + " K";#}
+{#                                        #}
+{#                                    } else {#}
+{##}
+{#                                        return value + " byte";#}
+{##}
+{#                                    }#}
+
+                                    return (value / (1024 * 1024 * 1024)).toFixed(2) + " G";
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: '最大值',
+                                type: 'line',
+                                data: data.memory.max
+                            },
+                            {
+                                name: '最小值',
+                                type: 'line',
+                                data: data.memory.min
+                            },
+                            {
+                                name: '平均值',
+                                type: 'line',
+                                data: data.memory.avg
+                            },
+                        ]
+                    };
+                    myChart3.setOption(option3);
+
+                    var myChart4 = echarts.init(document.getElementById('main4'));
+                    option4 = {
+                        tooltip: {
+                            trigger: 'axis',
+                            // 弹出框动态显示单位
+                            formatter: function (params) {
+                                var msg = "";
+                                //alert(JSON.stringify(params));
+                                for (x in params) {
+                                    if ((params[x].value[1] / (1024 * 1024)) >= 1) {
+
+                                        // Mb/s
+                                        msg += params[x].seriesName + " : " + (params[x].value[1] / (1024 * 1024)).toFixed(2) + ' Mb/s <br />';
+
+                                    } else if ((params[x].value[1] / (1024)) >= 1) {
+
+                                        // Kb/s
+                                        msg += params[x].seriesName + " : " + (params[x].value[1] / (1024)).toFixed(2) + ' Kb/s <br />';
+
+                                    } else if ((params[x].value[1]) > 0) {
+
+                                        // bit/s
+                                        msg += params[x].seriesName + " : " + (params[x].value[1]).toFixed(2) + " bit/s <br />";
+
+                                    } else {
+
+                                        // 0
+                                        msg += params[x].seriesName + " : 0 bit/s<br />";
+
+                                    }
+                                }
+                                return msg;
+                            }
+                        },
+                        legend: {
+                            data: ['入流量 max', '入流量 min', '入流量 avg', '出流量 max', '出流量 min', '出流量 avg']
+                        },
+                        grid: {
+                            left: '3%',
+                            right: '4%',
+                            bottom: '3%',
+                            containLabel: true
+                        },
+                        xAxis: {
+                            type: 'time'
+                        },
+                        yAxis: {
+                            type: 'value',
+                            // Y 轴显示单位(动态显示则会出现Y轴单位不统一)
+                            axisLabel: {
+                                formatter: function (value, index) {
+
+{#                                    if ((value / (128 * 1024)) > 1) {#}
+{##}
+{#                                        return (value / (128 * 1024)).toFixed(2) + " Mb/s";#}
+{##}
+{#                                    } else if ((value / (128)) > 1) {#}
+{##}
+{#                                        return (value / (128)).toFixed(2) + " Kb/s";#}
+{##}
+{#                                    } else {#}
+{##}
+{#                                        return (value).toFixed(2) + " Byte/s";#}
+{##}
+{#                                    }#}
+                                    return (value / (1024 * 1024)).toFixed(2) + " Mb/s";
+                                }
+                            }
+                        },
+                        series: [
+                            {
+                                name: '入流量 max',
+                                type: 'line',
+                                data: data.net_in.max
+                            },
+                            {
+                                name: '入流量 min',
+                                type: 'line',
+                                data: data.net_in.min
+                            },
+                            {
+                                name: '入流量 avg',
+                                type: 'line',
+                                data: data.net_in.avg
+                            },
+                            {
+                                name: '出流量 max',
+                                type: 'line',
+                                data: data.net_out.max
+                            },
+                            {
+                                name: '出流量 min',
+                                type: 'line',
+                                data: data.net_out.min
+                            },
+                            {
+                                name: '出流量 avg',
+                                type: 'line',
+                                data: data.net_out.avg
+                            },
+                        ]
+                    };
+                    myChart4.setOption(option4);
+                },
+                error: function (e, a) {
+                    alert(a);
+                }
+            })
+        })
+    </script>
+
+{% endblock %}
+

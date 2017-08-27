@@ -1,0 +1,561 @@
+
+{% extends 'base_cmdb.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+
+{% endblock %}
+
+{% block content-wrapper %}
+<div class="dancontainer">
+     <div id="my_tab" style="margin: 10px 0px 10px 0px">
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="/netflow/blacklist">黑名单管理</a></li>
+            <li role="presentation"><a href="/netflow/whitelist">白名单管理</a></li>
+        </ul>
+     </div>
+
+     <!--内页存放内容-->
+     <div class="inner-box inner-list-box">
+	    <div id="my_input" class="dan-table-menu form form-inline" >
+
+            <div class="form-group" >
+                <button type="button" id="add" class="btn btn-green" data-toggle="modal" data-target="#addModal" data-whatever="@mdo">
+                    <span class="glyphicon glyphicon-plus"></span> 新增
+                </button>
+	        </div>
+            <div class="form-group" >
+	                <button type="button" id="delete" class="btn btn-red disabled">
+                        <span class="glyphicon glyphicon-remove-circle"></span> 删除
+                    </button>
+	        </div>
+
+            <div class="form-group">
+                <form class="my-form">
+                    <input id="title" name="title" type="text" class="form-control searchForm" placeholder="标题" >
+                    <input type="hidden" name="list_type" value="1" class="form-control"/>
+                </form>
+            </div>
+            <div class="form-group">
+                <form class="my-form">
+                    <input id="switch_ip" name="switch_ip" type="text" class="form-control searchForm" placeholder="交换机ip" >
+                </form>
+            </div>
+		</div>
+
+	    <div id="my_grid">
+		</div>
+
+    </div>
+</div>
+
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">新增</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="myForm">
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">标题:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='title' name="title" class="form-control required"/>
+                    <input type="hidden" id='status' name="status" value="1" class="form-control required"/>
+                    <input type="hidden" id='list_type' name="list_type" value="1" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">交换机ip:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='switch_ip' name="switch_ip" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">端口:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='port' name="port" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">黑名单类型:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="type" name="type" class="form-control required">
+                        <option value="">黑名单类型</option>
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">黑名单:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='ip' name="ip" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">时间段:</label>
+	            </div>
+	            <div class="col-lg-3">
+	            	<input type="text" id='from_time' name="from_time" class="form-control"/>
+	            </div>
+                <div class="col-lg-1">
+	            	-
+	            </div>
+                <div class="col-lg-3">
+	            	<input type="text" id='to_time' name="to_time" class="form-control"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">重复(默认为每天):</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="repeat" name="repeat[]" class="form-control" multiple="multiple" style="width: 100%">
+		            </select>
+	            </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="formSubmit" class="btn btn-primary"> 提交 </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">修改</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="updateForm">
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">标题:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="_text" id='_title' name="title" class="form-control required"/>
+                    <input type="hidden" id='_id' name="id" class="form-control"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">交换机ip:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='_switch_ip' name="switch_ip" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">端口:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='_port' name="port" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">黑名单类型:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_type" name="type" class="form-control required">
+                        <option value="">黑名单类型</option>
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">黑名单:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='_ip' name="ip" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">时间段:</label>
+	            </div>
+	            <div class="col-lg-3">
+	            	<input type="text" id='_from_time' name="from_time" class="form-control"/>
+	            </div>
+                <div class="col-lg-1">
+	            	-
+	            </div>
+                <div class="col-lg-3">
+	            	<input type="text" id='_to_time' name="to_time" class="form-control"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">重复(默认为每天):</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_repeat" name="repeat[]" class="form-control" multiple="multiple" style="width: 100%">
+		            </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">状态:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_status" name="status" class="form-control">
+                        <option value="">状态</option>
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="updateSubmit" class="btn btn-primary"> 提交 </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 确认操作 -->
+<div class="modal fade" id="confirmModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">操作确认</label></h4>
+      </div>
+      <div class="modal-body" id="_msg">
+
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="confirmButton" class="btn btn-primary"> 确定 </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 确认操作 -->
+
+<script>
+
+	$(".searchForm").on("change", function(e) {
+		$('#my_table').bootstrapTable("refresh");
+	});
+	$(".searchForm").bind('keydown', function (e) {
+	    var key = e.which;
+	    if (key == 13) {
+	    	$('#my_table').bootstrapTable("refresh");
+	    	return false;
+	    }
+	});
+
+	var _top = $("#my_grid").offset().top;
+	var height = $(window).height() - _top - 20;
+
+	$("#my_grid").html('<table id="my_table" data-show-columns="false" data-height="' + height + '"></table>');
+
+    initCombobox({
+        renderTo: "type",
+        optionList: [{text:"ip地址", value: 1}, {text:"网段", value: 2}],
+        placeholder: "黑名单类型"
+    });
+
+    $("#repeat").select2({
+        data: [{id:"0", text:"周一"},{id:"1", text:"周二"},{id:"2", text:"周三"},{id:"3", text:"周四"},{id:"4", text:"周五"},{id:"5", text:"周六"},{id:"6", text:"周日"}]
+    });
+
+	var columns = [
+                    {field: 'chk', title: '复选框', checkbox: true},
+					{field: 'title', title: '标题'},
+					{field: 'switch_ip', title: '交换机ip'},
+                    {field: 'port', title: '端口'},
+                    {field: 'type_name', title: '黑名单类型'},
+                    {field: 'ip', title: '黑名单'},
+                    {field: 'status_name', title: '状态'},
+					{field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"}
+	           	];
+
+    window.actionEvents = {
+	    'click .updateACL': function (e, value, row, index) {
+	    	var id = row['id'];
+            var ip = row['ip'];
+            var title = row['title'];
+            var switch_ip = row['switch_ip'];
+            var port = row['port'];
+            var type = row['type'];
+            var status = row['status'];
+            var from_time = row['from_time'];
+            var to_time = row['to_time'];
+            var repeat = row['repeat'];
+            $("#_id").val(id);
+            $("#_ip").val(ip);
+            $("#_title").val(title);
+            $("#_switch_ip").val(switch_ip);
+            $("#_port").val(port);
+            $("#_from_time").val(from_time);
+            $("#_to_time").val(to_time);
+            repeat = repeat.split(",")
+            var repeat_data = [{id:"0", text:"周一"},{id:"1", text:"周二"},{id:"2", text:"周三"},{id:"3", text:"周四"},{id:"4", text:"周五"},{id:"5", text:"周六"},{id:"6", text:"周日"}];
+            var data = [];
+            if (repeat.length > 0) {
+                for(var i = 0 in repeat_data) {
+                    var t = repeat_data[i];
+                    if(repeat.indexOf(i) != -1) {
+                        t['selected'] = true;
+                    }
+                    data.push(t)
+                }
+            } else {
+                data = repeat_data
+            }
+             $("#_repeat").select2({
+                data: data
+            });
+            initCombobox({
+                renderTo: "_type",
+                defaultValue: type,
+                optionList: [{text:"ip地址", value: 1}, {text:"网段", value: 2}],
+                placeholder: "黑名单类型"
+            });
+            initCombobox({
+                renderTo: "_status",
+                defaultValue: status,
+                optionList: [{text:"启用", value: 1}, {text:"禁用", value: 0}],
+                placeholder: "状态"
+            });
+	    },
+        'click .delACL': function (e, value, row, index) {
+	    	var id = row['id'];
+            $("#_msg").html("");
+            $("#_msg").html("确定要删除该数据吗？");
+			$("#confirmModal").modal('show');
+			$("#confirmButton").unbind();
+			$("#confirmButton").on("click", function(e) {
+				$("#confirmModal").modal('hide');
+				var param = {};
+				var ids = [];
+                ids.push(id);
+                param['id[]'] = ids;
+				$.post("/netflow/webapi/settinglist?method=delData", param, function(data) {
+		        	$('#my_table').bootstrapTable("refresh");
+			    });
+			});
+	    }
+	};
+
+    function opFormatter(value, row, index) {
+        var html = "<a href='#' class='updateACL' data-toggle='modal' data-target='#updateModal' data-whatever='@mdo'><span title='修改' class='glyphicon glyphicon-edit'></span></a>";
+        html += "　<a href='#' class='delACL'><span title='删除' class='glyphicon glyphicon-remove-circle'></span></a>";
+	    return "<div style='width:80px;'>" + html + "</div>";
+	}
+
+    function buttonStatus() {
+        var selections = $('#my_table').bootstrapTable("getAllSelections");
+		if(selections.length <= 0) {
+            $("#delete").addClass("disabled");
+        } else {
+            $("#delete").removeClass("disabled");
+        }
+    }
+
+	var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+	    columns: columns,
+	    url: "/netflow/webapi/settinglist?method=getList",
+	    pagination: true,
+	    sidePagination: 'server',
+	    pageSize: 100,
+        pageList: [100, 200, 500],
+        clickToSelect: false,
+        striped: true,
+        responseHandler: function (res) {
+            buttonStatus();
+            return res;
+        },
+        onCheck: function (row) {
+        	buttonStatus();
+            return false;
+        },
+        onUncheck: function (row) {
+        	buttonStatus();
+            return false;
+        },
+        onCheckAll: function (rows) {
+        	buttonStatus();
+            return false;
+        },
+        onUncheckAll: function (rows) {
+        	buttonStatus();
+            return false;
+        },
+	    queryParams: function (params) {
+
+	    	/**获取所有class为my-form的表单中的元素名和值*/
+	    	var form = $(".my-form");
+	    	if(typeof form != 'undefined') {
+		    	var arr = form.serializeArray();
+		    	$.each(arr, function(i, field){
+			   		params[field.name] = field.value;
+			  	});
+	    	}
+	        return params;
+        }
+	});
+
+    $("#formSubmit").on("click", function(e) {
+		var form = $("#myForm").validate({
+            rules: {
+                from_time: {
+                    range:[0, 23]
+                },
+                to_time: {
+                    range:[0, 23]
+                }
+            },
+            submitHandler: function(form) {
+				$(form).ajaxSubmit({
+					type: 'post',
+		            url: "/netflow/webapi/settinglist?method=addData",
+		            success: function(data) {
+		        		var json = data;
+		        		if(json.success == true) {
+		                	$(this).resetForm();
+		                	$('#addModal').modal('hide');
+		                	$('#my_table').bootstrapTable("refresh");
+		        		} else {
+		            		alert(json.msg);
+		            	}
+		            }
+		        });
+			}
+		});
+		$("#myForm").submit();
+	});
+
+    $("#updateSubmit").on("click", function(e) {
+		var form = $("#updateForm").validate({
+            rules: {
+                _from_time: {
+                    range:[0, 23]
+                },
+                _to_time: {
+                    range:[0, 23]
+                }
+            },
+            submitHandler: function(form) {
+				$(form).ajaxSubmit({
+					type: 'post',
+		            url: "/netflow/webapi/settinglist?method=updateData",
+		            success: function(data) {
+		        		var json = data;
+		        		if(json.success == true) {
+		                	$(this).resetForm();
+		                	$('#updateModal').modal('hide');
+		                	$('#my_table').bootstrapTable("refresh");
+		        		} else {
+		            		alert(json.msg);
+		            	}
+		            }
+		        });
+			}
+		});
+		$("#updateForm").submit();
+	});
+
+    $("#delete").on("click", function(e) {
+		var selections = $('#my_table').bootstrapTable("getAllSelections");
+		if(selections.length > 0) {
+            $("#_msg").html("");
+            $("#_msg").html("确定要删除选中事件吗？");
+			$("#confirmModal").modal('show');
+			$("#confirmButton").unbind();
+			$("#confirmButton").on("click", function(e) {
+				$("#confirmModal").modal('hide');
+				var param = {};
+				var ids = [];
+                for(var i = 0; i < selections.length; i++) {
+                    var t = selections[i];
+                    ids.push(t['id']);
+                }
+                param['id[]'] = ids;
+				$.post("/netflow/webapi/settinglist?method=delData", param, function(data) {
+		        	$('#my_table').bootstrapTable("refresh");
+			    });
+			});
+        }
+	});
+</script>
+{% endblock %}

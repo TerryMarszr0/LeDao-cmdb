@@ -1,0 +1,300 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> 授权审批</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+
+                    <div id="my_tab" style="margin: 10px 0px 10px 0px">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="/fortress/audit/">授权审批</a></li>
+                            <li role="presentation"><a href="/fortress/audit/applyrecord/">申请记录</a></li>
+                        </ul>
+                     </div>
+                    <!--内页存放内容-->
+                     <div class="inner-box inner-list-box">
+                        <div id="my_input" class="dan-table-menu form form-inline" >
+
+                            <div class="btn-group" role="group" aria-label="...">
+                              <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success">
+                                <span class="glyphicon glyphicon-refresh"></span> 刷新
+                              </button>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="apply_user" name="apply_user" type="text" class="form-control searchForm" placeholder="申请用户" >
+                                </form>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="search" name="search" type="text" class="form-control searchForm" placeholder="申请原因" >
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="my_grid">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 变更日志 -->
+<div class="modal fade" id="changeLogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+          <iframe id="changeLogIFrame" width="100%" height="750px;" style="border:0;" src=""></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 变更日志 -->
+
+<!-- 授权申请详情 -->
+<div class="modal fade" id="applyDetailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">授权审批</label></h4>
+      </div>
+      <div class="modal-body">
+          <input type="hidden" name="id" id="apply_id"/>
+          <iframe id="applyDetailIFrame" width="100%" height="515px;" style="border:0;" src=""></iframe>
+      </div>
+      <div class="modal-footer">
+          <button type="button" id="passButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 同意 </span></button>
+          <button type="button" id="refuseButton" class="btn btn-danger ladda-button" data-style="expand-right"><span class="ladda-label"> 拒绝 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 授权申请详情 -->
+
+{% endblock %}
+
+{% block self_footer_js %}
+<script>
+
+$(".searchForm").on("change", function(e) {
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
+    }
+});
+
+$("#service_id").on("change", function(e) {
+    var service_id = $("#service_id").val();
+    $.get('/api/host/host/?limit=1000&service_id=' + service_id, {}, function(data) {
+        var results = data['results']
+        var ip = '';
+        for(var i in results) {
+            ip += results[i].ip + "\n";
+        }
+        $("#apply_ip").val(ip);
+    });
+});
+
+var _top = $("#my_grid").offset().top;
+var height = $(window).height() - _top - 20;
+
+$("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+
+var columns = [
+                {field: 'id', title: 'ID'},
+                {field: 'apply_user', title: '申请人'},
+                {field: 'reason', title: '申请原因'},
+                {field: 'apply_time', title: '申请时间'},
+                {field: 'state', title: '状态'},
+                {field: 'role', title: '权限'},
+                {field: 'day', title: '天数'},
+                {field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"}
+            ];
+
+window.actionEvents = {
+    'click .detailACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#apply_id").val(id);
+        $("#applyDetailIFrame").attr('src', '/fortress/applydetail/?apply_id=' + id);
+        $("#applyDetailModal").modal('show');
+    },
+    'click .changeACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#changeLogIFrame").attr('src', '/change/reschange/?resource=fortress_applyrecord&res_id=' + id);
+        $("#changeLogModal").modal('show');
+    }
+};
+
+function opFormatter(value, row, index) {
+    var html = "<a href='#' class='btn btn-xs btn-warning changeACL'>日志</a>";
+    html += " <a href='#' class='btn btn-xs btn-info detailACL' data-toggle='modal' data-target='#detailModal' data-whatever='@mdo'>详情</a>";
+    return html;
+}
+
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+    columns: columns,
+    url: "/api/fortress/applyrecord/?format=json&state=pending",
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    responseHandler: function (res) {
+        var result = res.results;
+        var data = {total: res.count, rows: result}
+        return data;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if(typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function(i, field){
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+$("#passButton").on("click", function(e) {
+    var id = $("#apply_id").val()
+    $.confirm({
+        title: 'Confirm!',
+        content: '确定要同意该授权申请吗?',
+        buttons: {
+            confirm: {
+                text: '确认',
+                btnClass: 'btn-blue',
+                action: function () {
+                    var l = Ladda.create( document.querySelector('#passButton') );
+                    l.start();
+                    $.ajax({
+                        type: 'patch',
+                        url: "/api/fortress/changeapplystate/?format=json",
+                        data: {id: id, state: 'finish'},
+                        success: function(data) {
+                            Ladda.stopAll();
+                            $("#applyDetailModal").modal('hide');
+                            $('#my_table').bootstrapTable("refresh");
+                        },
+                        error: function(data) {
+                            Ladda.stopAll();
+                            var content = data.responseText;
+                            var json = $.parseJSON(data.responseText);
+                            if(typeof json.detail != 'undefined') content = json.detail;
+                            $.alert({
+                                title: '操作失败',
+                                content: content
+                            });
+                        }
+                    })
+                }
+            },
+            cancel: {
+                text: '取消',
+                action: function () {
+                }
+            }
+        }
+    });
+});
+
+$("#refuseButton").on("click", function(e) {
+    var id = $("#apply_id").val()
+    $.confirm({
+        title: 'Confirm!',
+        content: '确定要拒绝该授权申请吗?',
+        buttons: {
+            confirm: {
+                text: '确认',
+                btnClass: 'btn-blue',
+                action: function () {
+                    var l = Ladda.create( document.querySelector('#refuseButton') );
+                    l.start();
+                    $.ajax({
+                        type: 'patch',
+                        url: "/api/fortress/changeapplystate/?format=json",
+                        data: {id: id, state: 'refuse'},
+                        success: function(data) {
+                            Ladda.stopAll();
+                            $("#applyDetailModal").modal('hide');
+                            $('#my_table').bootstrapTable("refresh");
+                        },
+                        error: function(data) {
+                            Ladda.stopAll();
+                            var content = data.responseText;
+                            var json = $.parseJSON(data.responseText);
+                            if(typeof json.detail != 'undefined') content = json.detail;
+                            $.alert({
+                                title: '操作失败',
+                                content: content
+                            });
+                        }
+                    })
+                }
+            },
+            cancel: {
+                text: '取消',
+                action: function () {
+                }
+            }
+        }
+    });
+});
+
+</script>
+
+{% endblock %}

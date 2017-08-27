@@ -1,0 +1,56 @@
+{% block self_head_css_js %}
+    <script src="/static/js/jquery-2.1.1.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+
+    <!-- pop windows -->
+    <script src="/static/js/jquery.colorbox.js"></script>
+
+    <!-- validator js -->
+    <script src="/static/js/validator/jquery.validator.js"></script>
+    <script src="/static/js/validator/zh_CN.js"></script>
+    <script src="/static/js/datapicker/bootstrap-datepicker.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+    <script src="/static/libs/ladda/spin.min.js"></script>
+    <script src="/static/libs/ladda/ladda.min.js"></script>
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+    <link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+    <link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css"/>
+    <link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css"/>
+    <link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css"/>
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css"/>
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css"/>
+
+    <script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+    <script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+    <script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+
+{% endblock %}
+<html>
+<body>
+
+<div id="nginx_conf" >
+
+</div>
+
+</body>
+</html>
+
+
+<script>
+    var id = {{ lb_id }}
+        $.ajax({
+            dataType:"json",
+            url: "/api/lb/showconf/" + id + "/?format=json",
+            success: function (data) {
+                $("#nginx_conf").html(data["nginx_conf"].replace(/\n/g,"<br>").replace(/\t/g,"&nbsp;&nbsp;&nbsp;&nbsp;"))
+{#                $("body").append(data["nginx_conf"])#}
+
+            }
+
+        })
+</script>
+

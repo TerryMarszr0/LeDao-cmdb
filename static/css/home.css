@@ -1,0 +1,75 @@
+﻿@charset "utf-8";
+/* CSS Document */
+/*首页主要内容*/
+/*动态新闻*/
+.newsbar{ line-height:30px; background:url(../images/news.png) no-repeat 10px 0px #fff; position:relative; padding: 0px 80px 0px 40px; margin-bottom:15px;  }
+.newsbar li { display:inline; float:left;  width:30%; margin-left:2%; }
+.newsbar li a{ color:#666; font-size:12px;}
+.newsbar li a:hover{ color:#5bcfc8; text-decoration:underline; }
+.newsbar li .time{ margin-right:2%; margin-left:2%;}
+.newsbar a.more{ position:absolute; right:10px; top:0px;font-size:14px; color:#F89808;}
+.newsbar a.more:hover{text-decoration:underline;}
+
+/*自定义菜单*/
+.daohang .h3-title{ color:#333; font-size:22px; height:35px; padding:0px 5px; border-bottom:1px solid #ccc; position:relative;}
+.daohang .h3-title a.btn{position: absolute;right: 0px;top: -5px; color:#9E9D9D; font-size: 18px;}
+.daohang .dao-tab{ border-bottom:1px dashed #ccc; padding:20px 0px 20px 50px; }
+.daohang .dao-tab ul{ overflow:hidden;}
+.daohang .dao-tab li{ display:inline; float:left; position:relative; padding:0px 20px 0px 10px; border:1px solid #fff;}
+.daohang .dao-tab a{ color:#666; font-size:14px; display:inline-block; width:170px; height:30px;line-height:30px; overflow: hidden; white-space: nowrap;text-overflow: ellipsis; }
+.daohang .dao-tab a i{ display:inline-block; font-size:12px; color:#fff;width:22px; height:22px; line-height:22px; border-radius:100%; background-color:#CCC; text-align:center; margin-right:3px; transform:scale(0.7);}
+.daohang .dao-tab a i.glyphicon-edit{ background:#f75c4c;}
+.daohang .dao-tab a i.glyphicon-envelope{ background-color:#fe8504;}
+.daohang .dao-tab a i.glyphicon-eye-open{ background-color:#e8c91f;}
+.daohang .dao-tab a i.glyphicon-camera{ background-color:#5586F3;}
+.daohang .dao-tab a i.glyphicon-send{ background-color:#f459e0;}
+.daohang .dao-tab a i.glyphicon-cloud{ background-color:#59c13a;}
+.daohang .dao-tab a i.glyphicon-question-sign{ background-color:#09F;}
+.daohang .dao-tab li button{font-size:15px;color:#fff;position:absolute;top:10px;right:6px; background:none; border:none;}
+.daohang .dao-tab li:hover{ border:1px solid #ccc;}
+.daohang .dao-tab li:hover button{color:#ccc;}
+/*自定义链接弹出框*/
+@media (min-width:768px) {
+.link-modal {
+	width: 700px;
+}
+.link-modal .modal-title{ color:#000; font-size:20px; height:50px; line-height:50px; }
+.link-modal .link-main{ padding:20px 0px 20px; border-top:1px dashed #ccc; margin-bottom:20px; overflow:hidden; font-weight:normal; }
+.link-modal .form-group{ overflow:hidden;}
+.link-modal .link-footer{ text-align:right;}
+/*各个产品展示*/
+.program{ box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2); background-color:#fff; padding:20px 0px; }
+.program-tab{padding:20px 35px 10px;}
+.program h1.pro-title{ font-size:24px; text-align:center; line-height:60px; background:url(../images/title-hline4.png) no-repeat center bottom;}
+.program .list{ margin:30px 0 15px;}
+.program .list li.last{ margin-right:0;}
+.program .list li{ position:relative; float:left;}
+.program .list li a{ display:block; padding:20px;}
+.program .one-fifth li a{ padding:0px;}
+.program .list li h3{font-size:18px;color:#333;line-height:25px; margin-bottom: 15px; }
+.program .list li p{ font-size:12px; color:#666;}
+/*方块的尺寸*/
+.program .one-second li{ width:40%;position:relative; float:left; margin: 0 5%; border:1px solid #ccc;}
+.program .one-second li .text{float:right; width:70%;}
+.program .one-second li h3{ margin-bottom:10px; }
+.program .one-third li{ width:28%; text-align:center; margin-right:8%; border:1px solid #ccc; } 
+.program .one-fourth li{ width:22%; text-align:center; margin-right:4%;border: 1px solid #ccc;  } 
+.program .one-fifth li{ width:20%; text-align:center; }
+/*图标*/
+.program .list li span{ width:80px; height:80px; font-size:35px; text-align:center; vertical-align:middle; line-height:80px; border-radius:100%;border: 1px solid #5bcfc8;background-color: #fff;color: #5bcfc8;   } 
+.program .one-fourth li span{ margin-bottom:20px; } 
+.program .one-second li span{ display:inline-block; }
+.program .one-third li span{ width:120px; height:120px; background:url(../images/icon_08.png) no-repeat 5px 2px; border:none; margin-bottom:20px; color:#5bcfc8; line-height: 120px; font-size: 50px; }
+.program .one-fifth li span{ margin-bottom:30px; }
+/*鼠标悬浮状态图标*/
+.program .one-fourth li:hover span,.program .one-second li:hover span,.program .one-fifth li:hover span{ border:1px solid #5bcfc8; background-color:#5bcfc8; color:#fff;}
+/*鼠标悬浮状态文字*/
+.program .one-fourth li:hover h3,.program .one-third li:hover h3,.program .one-second li:hover h3,.program .one-fifth li:hover h3{ color:#F90; }
+/*鼠标悬浮状态边框*/
+.program .one-fourth li:hover,.program .one-third li:hover,.program .one-second li:hover{box-shadow: 0 0 17px 2px rgba(0, 0, 0, 0.2); -moz-box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.2); }
+
+
+
+
+
+

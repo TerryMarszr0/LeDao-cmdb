@@ -1,0 +1,2 @@
+ip,parent_ip,type,attribute,sn,model,conf,room_name,rack_name,location,hostname,image,service_name,oobip,auto_install,env,aliyun_id
+10.0.20.167,,aliyun,ECS,,,S1,,,,myfreehost-20.167,Centos6.5-x86_64,,,1,prod,test-aliyunid-06

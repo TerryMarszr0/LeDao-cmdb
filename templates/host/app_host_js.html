@@ -1,0 +1,1280 @@
+<script>
+
+var service_id = '{{ service.id }}';
+if(service_id == 'undefined' || service_id == '' || service_id == null) {
+    service_id = 0;
+}
+
+$("#add").on("click", function(e) {
+    window.location = '/host/addhost/'
+});
+
+{% if not service %}
+
+initCombobox({
+    renderTo: "search_group",
+    url: "/api/app/group/?format=json&limit=10000",
+    defaultValue: "{{ app_id }}",
+    responseHandler: function(data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for(var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.name, value: row.name};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+
+initCombobox({
+    renderTo: "search_app_id",
+    url: "/api/app/app/?format=json&limit=10000",
+    defaultValue: "",
+    responseHandler: function(data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for(var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.name, value: row.id};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+
+
+initCombobox({
+    renderTo: "search_service_id",
+    url: "/api/app/service/?format=json&limit=10000",
+    defaultValue: "",
+    responseHandler: function(data) {
+        var results = data.results;
+        var lists = [];
+        lists.push({text: '---', value: ''});
+        for(var i = 0 in results) {
+            var row = results[i];
+            t = {text: row.name, value: row.id};
+            lists.push(t);
+        }
+        return lists;
+    }
+});
+{% endif %}
+
+
+$(".searchForm").on("change", function(e) {
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
+    }
+});
+
+$.get("/api/user/user/?format=json&limit=10000", {}, function(data) {
+    var results = data.results;
+    var lists = [];
+    lists.push({id: "", text: '---', value: ''});
+    for(var i = 0 in results) {
+        var row = results[i];
+        t = {id:row.username, text: row.username, value: row.username};
+        lists.push(t);
+    }
+    $("#auth_username").empty();
+    $("#auth_username").select2({
+        placeholder: "",
+        data: lists
+    });
+})
+
+$.get("/api/app/service/?format=json&limit=10000", {}, function(data) {
+    var results = data.results;
+    var lists = [];
+    lists.push({id: "", text: '---', value: ''});
+    for(var i = 0 in results) {
+        var row = results[i];
+        t = {id:row.id, text: row.name, value: row.id};
+        lists.push(t);
+    }
+    $("#change_service_id").empty();
+    $("#change_service_id").select2({
+        placeholder: "",
+        data: lists
+    });
+
+    $("#mount_service_id").empty();
+    $("#mount_service_id").select2({
+        placeholder: "",
+        data: lists
+    });
+})
+
+
+function buttonStatus() {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length <= 0) {
+        $("#server_op_button").addClass("disabled");
+    } else {
+        $("#server_op_button").removeClass("disabled");
+    }
+}
+
+window.actionEvents = {
+    'click .updateACL': function (e, value, row, index) {
+        var id = row['id'];
+        window.location = "/host/edit/?host_id=" + id;
+    },
+    'click .delACL': function (e, value, row, index) {
+        var id = row['id'];
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除该主机吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/host/host/" + id + "/",
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    },
+    'click .updateAliyunACL': function (e, value, row, index) {
+        var id = row['id'];
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要从阿里云更新主机信息吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'patch',
+                            url: "/api/host/updatefromaliyun/",
+                            data: {id: id},
+                            success: function(data) {
+                                $.alert({
+                                    title: '更新成功',
+                                    content: '更新成功'
+                                });
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '更新失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    },
+    'click .pwdACL': function (e, value, row, index) {
+        var ip = row['ip'];
+        $("#host_password").text('');
+        $.get('/api/host/password/?ip=' + ip, {}, function(data) {
+            if(typeof data.password != 'undefined') {
+                $("#host_password").val(data.password);
+                $("#hostpwdModal").modal("show");
+            } else {
+                var content = '查询密码失败';
+                if(typeof data.detail != 'undefined') {
+                    content = data.detail;
+                }
+                $.alert({
+                    title: '查询失败',
+                    content: content
+                });
+            }
+        });
+
+        $.ajax({
+            type: 'get',
+            url: "/api/host/password/?ip=" + ip,
+            success: function(data) {
+                if(typeof data.password != 'undefined') {
+                    $("#host_password").text(data.password);
+                    $("#hostpwdModal").modal("show");
+                } else {
+                    var content = '查询密码失败';
+                    if(typeof data.detail != 'undefined') {
+                        content = data.detail;
+                    }
+                    $.alert({
+                        title: '查询失败',
+                        content: content
+                    });
+                }
+            },
+            error: function(data) {
+                var content = data.responseText;
+                var json = $.parseJSON(data.responseText);
+                if(typeof json.detail != 'undefined') content = json.detail;
+                $.alert({
+                    title: '查询失败',
+                    content: content
+                });
+            }
+        })
+    },
+    'click .changeACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#changeLogIFrame").attr('src', '/change/reschange/?resource=host_hosts&res_id=' + id);
+        $("#changeLogModal").modal('show');
+    },
+    'click .change_hostname': function (e, value, row, index) {
+        var id = row['id'];
+        var hostname = row['hostname'];
+        $("#change_hostname_id").val(id);
+        $("#change_hostname_hostname").val(hostname);
+        $("#changeHostnameModal").modal('show');
+    },
+    'click .changeHostService': function (e, value, row, index) {
+        var id = row['id'];
+        var service_id = row['service_id'];
+        $("#change_host_service_ip").val(row['ip']);
+        $("#change_host_service_host_id").val(id);
+        $.get("/api/app/service/?format=json&limit=10000", {}, function(data) {
+            var results = data.results;
+            var lists = [];
+            lists.push({id: "", text: '---', value: ''});
+            for(var i = 0 in results) {
+                var row = results[i];
+                t = {id:row.id, text: row.name, value: row.id};
+                if($.inArray(row.id, service_id) >= 0) {
+                    t['selected'] = true;
+                }
+                lists.push(t);
+            }
+            $("#change_host_service_id").empty();
+            $("#change_host_service_id").select2({
+                placeholder: "",
+                data: lists
+            });
+        })
+        $("#changeHostServiceModal").modal('show');
+    },
+    'click .desACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#host_desc_id").val(id);
+        $("#host_description").val(row['description']);
+        var url = "/api/host/host/" + id + "/?format=json"
+        $("#hostDescForm").attr("action", url);
+    },
+    'click .statACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#change_state_id").val(id);
+        $("#piliang_change_state").val(row['state']);
+        $("#changeStateModal").modal("show");
+    }
+{% if service.id > 0 %}
+    ,
+    'click .upstreamACL': function (e, value, row, index) {
+
+        var value = ''
+        var host_service = row['host_service'];
+        var service_id = {{ service.id }};
+        for(var i in host_service) {
+            var hs = host_service[i];
+            if(service_id == hs['service_id']) {
+                value = hs['state'];
+            }
+        }
+        $("#change_upstream_state_ip").val(row['ip']);
+        $("#change_upstream_state").val(value);
+        $("#upstreamStateModal").modal("show");
+    }
+{% endif %}
+};
+
+function opFormatter(value, row, index) {
+    var html = "<a href='#' class='btn btn-xs btn-warning changeACL'>日志</a>";
+    {% if user.is_superuser == 1 or user.is_staff == 1%}
+    html += " <a href='#' class='btn btn-xs btn-info updateACL'>编辑</a>";
+    /**if(row['type'] == 'aliyun') {
+        html += " <a href='#' class='btn btn-xs btn-primary updateAliyunACL'>更新</a>";
+    }*/
+    html += " <a href='#' class='btn btn-xs btn-success pwdACL'>密码</a>";
+    html += " <a href='#' class='btn btn-xs btn-danger delACL'>删除</a>";
+
+{#    html += " <a href='#' class='btn btn-xs btn-primary detailACL'>详情</a>";   {# 增加详情信息页 #}
+    {% endif %}
+    return html;
+}
+
+function stateFormatter(value, row, index) {
+    var html = "<a class='changeState statACL'><strong>" + value + "</strong></a>";
+    if(value == 'online') {
+        html = "<a class='changeState statACL' style='color:#05BBB2;'><strong>" + value + "</strong></a>";
+    } else if(value == 'free') {
+        html = "<a class='changeState statACL' style='color:#05BBB2;'><strong>" + value + "</strong></a>";
+    } else if(value == 'unuse') {
+        html = "<a class='changeState statACL' style='color:#ec971f;'><strong>" + value + "</strong></a>";
+    } else {
+        html = "<a class='changeState statACL' style='color:#d9534f;'><strong>" + value + "</strong></a>";
+    }
+    return html;
+}
+
+function hostnameFormatter(value, row, index) {
+    var html = "<a href='#' class='change_hostname'>" + value + "</a>";
+    return html;
+}
+
+function desFormatter(value, row, index) {
+    if(value == "" || value == null) {
+        value = "-"
+    }
+    var html = "<a href='#' class='desACL'  data-toggle='modal' data-target='#hostDescModal' data-whatever='@mdo'>" + value + "</a>";
+    return html;
+}
+
+function hostDetailFormatter(value, row, index) {
+    var url = '/host/detail/?host_id=' + row['id'];
+    var html = "<a href=" + url + ">" + value + "</a>";
+    return html;
+}
+
+function hostServiceFormatter(value, row, index) {
+    var html = "<a href='#' class='changeHostService'>" + value + "</a>";
+    return html;
+}
+
+{% if service.id > 0 %}
+function upstreamFormatter(v, row, index) {
+    var value = ''
+    var host_service = row['host_service'];
+    var service_id = {{ service.id }}
+    for(var i in host_service) {
+        var hs = host_service[i];
+        if(service_id == hs['service_id']) {
+            value = hs['state'];
+        }
+    }
+
+    var html = value;
+    if(value == 'Up') {
+        html = '<span class="label label-primary arrowed-right arrowed-in"><a class="upstreamACL" style="color:#ffffff;">' + value + '</a></span>'
+    } else if(value == 'Down') {
+        html = '<span class="label label-danger arrowed-right arrowed-in"><a class="upstreamACL" style="color:#ffffff;">' + value + '</a></span>'
+    }
+    return html;
+}
+{% endif %}
+
+$("#leaf_grid").html('<table id="my_table" data-show-columns="false"></table>');
+var columns = [
+    {field: 'chk', title: '复选框', checkbox: true},
+    {
+        field: 'id', title: 'ID',
+        {% if user.is_superuser == 1 or user.is_staff == 1%}
+        formatter: hostDetailFormatter, events: "actionEvents"
+        {% endif %}
+    },
+    {
+        field: 'service_name', title: '服务',
+        {% if user.is_superuser == 1 or user.is_staff == 1%}
+        formatter: hostServiceFormatter, events: "actionEvents"
+        {% endif %}
+    },
+    {
+        field: 'hostname', title: '主机名',
+        {% if user.is_superuser == 1 or user.is_staff == 1%}
+        formatter: hostnameFormatter, events: "actionEvents"
+        {% endif %}
+    },
+    {% if service.id > 0 %}
+        {field: 'upstream', title: 'upstream状态', formatter: upstreamFormatter
+        {% if user.is_superuser == 1 or user.is_staff == 1%}
+        , events: "actionEvents"
+        {% endif %}
+        },
+    {% endif %}
+    {field: 'ip', title: 'ip', sortable: true},
+    {field: 'attribute', title: '属性'},
+    {field: 'room_cname', title: '机房'},
+    {
+        field: 'state', title: '主机状态'
+        {% if user.is_superuser == 1 or user.is_staff == 1%}
+        , formatter: stateFormatter, events: "actionEvents"
+        {% endif %}
+    },
+    {field: 'env', title: '环境'},
+    {field: 'img_name', title: '模板'},
+    {field: 'conf_name', title: '配置'},
+    {field: 'description', title: '备注', formatter: desFormatter, events: "actionEvents"},
+    {field: 'amount', title: '费用', sortable: true},
+    {field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"}
+];
+
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+    columns: columns,
+    url: "/api/host/host/?format=json&service_id=" + service_id,
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    sortName: 'id',
+    sortOrder: 'desc',
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    searchTimeOut: 500,
+    responseHandler: function (res) {
+        var rows = [];
+        for(var i in res.results) {
+            var t = res.results[i]
+            t['service_name'] = t['service_name'].join("<br/>")
+            rows.push(t);
+        }
+        var data = {
+            total: res.count,
+            rows: rows
+        }
+        $("#server_op_button").addClass("disabled");
+        return data;
+    },
+    onCheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onUncheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onCheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    onUncheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if (typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function (i, field) {
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+
+/*******************主机操作绑定**********************/
+$("#piliang_delete").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ids = [];
+        for(var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除选中主机吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/host/host/?format=json",
+                            data: {id: ids},
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+});
+
+$("#changeStateButton").on("click", function(e) {
+    var state = $("#piliang_change_state").val();
+    var id = $("#change_state_id").val();
+    $.confirm({
+        title: 'Confirm!',
+        content: '确定要修改选中主机状态吗?',
+        buttons: {
+            confirm: {
+                text: '确认',
+                btnClass: 'btn-blue',
+                action: function () {
+                    var l = Ladda.create( document.querySelector('#changeStateButton') );
+                    l.start();
+                    $.ajax({
+                        type: 'patch',
+                        url: "/api/host/changestate/?format=json",
+                        data: {id: id, state: state},
+                        success: function(data) {
+                            Ladda.stopAll();
+                            $("#changeStateForm").resetForm();
+                            $("#changeStateModal").modal('hide');
+                            $('#my_table').bootstrapTable("refresh");
+                        },
+                        error: function(data) {
+                            Ladda.stopAll();
+                            var content = data.responseText;
+                            var json = $.parseJSON(data.responseText);
+                            if(typeof json.detail != 'undefined') content = json.detail;
+                            $.alert({
+                                title: '操作失败',
+                                content: content
+                            });
+                        }
+                    })
+                }
+            },
+            cancel: {
+                text: '取消',
+                action: function () {
+                }
+            }
+        }
+    });
+});
+
+/**
+ *
+ * 修改upstream状态
+ * */
+$("#changeUpstreamStateButton").on("click", function(e) {
+    var state = $("#change_upstream_state").val();
+    var ip = $("#change_upstream_state_ip").val();
+    $.confirm({
+        title: 'Confirm!',
+        content: '确定要修改选中主机upstream状态吗?',
+        buttons: {
+            confirm: {
+                text: '确认',
+                btnClass: 'btn-blue',
+                action: function () {
+                    var l = Ladda.create( document.querySelector('#changeUpstreamStateButton') );
+                    l.start();
+                    $.ajax({
+                        type: 'patch',
+                        url: "/api/lb/changeServiceHostState/?format=json",
+                        data: {ip: ip, state: state, service_name: "{{ service.name }}"},
+                        success: function(data) {
+                            Ladda.stopAll();
+                            $("#changeUpstreamStateForm").resetForm();
+                            $("#upstreamStateModal").modal('hide');
+                            $('#my_table').bootstrapTable("refresh");
+                        },
+                        error: function(data) {
+                            Ladda.stopAll();
+                            var content = data.responseText;
+                            try {
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                            } catch(e) {
+                                content = "服务端未知错误"
+                            }
+                            $("#changeUpstreamStateForm").resetForm();
+                            $("#upstreamStateModal").modal('hide');
+                            $('#my_table').bootstrapTable("refresh");
+                            $.alert({
+                                title: '操作失败',
+                                content: content
+                            });
+                        }
+                    })
+                }
+            },
+            cancel: {
+                text: '取消',
+                action: function () {
+                }
+            }
+        }
+    });
+});
+
+
+/**
+ * 主机批量移动
+ * */
+$("#changeserviceButton").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ids = [];
+        for(var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        var service_id = $("#change_service_id").val();
+        $.confirm({
+            title: 'Confirm!',
+            content: '移动主机会删除其原有的挂载信息,确定要移动选中主机吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var l = Ladda.create( document.querySelector('#changeserviceButton') );
+                        l.start();
+                        $.ajax({
+                            type: 'patch',
+                            url: "/api/host/changeservice/?format=json",
+                            data: {id: ids, service_id: service_id, old_service_id: '{{ service.id }}'},
+                            success: function(data) {
+                                Ladda.stopAll();
+                                $("#changeserviceForm").resetForm();
+                                $("#changeserviceModal").modal('hide');
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                Ladda.stopAll();
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '操作失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+});
+
+/**
+ * 主机批量挂载
+ * */
+$("#mountButton").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ids = [];
+        for(var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        var service_id = $("#mount_service_id").val();
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要挂载选中主机吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var l = Ladda.create( document.querySelector('#mountButton') );
+                        l.start();
+                        $.ajax({
+                            type: 'post',
+                            url: "/api/host/mount/?format=json",
+                            data: {id: ids, service_id: service_id},
+                            success: function(data) {
+                                Ladda.stopAll();
+                                $("#mountForm").resetForm();
+                                $("#mountModal").modal('hide');
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                Ladda.stopAll();
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '操作失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+});
+
+/**
+ * 主机授权
+ * */
+$("#authSubmit").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var l = Ladda.create( document.querySelector('#authSubmit') );
+        l.start();
+        var username = $("#auth_username").val();
+        var day = $("#auth_day").val();
+        var role = $("#auth_role").val();
+        var param = {};
+        var ids = [];
+        for (var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        $.ajax({
+            type: 'post',
+            url: "/api/fortress/authrecord/?format=json",
+            data: {host_id: ids.join(","), username: username, day: day, role: role},
+            success: function (data) {
+                Ladda.stopAll();
+                $("#authForm").resetForm();
+                $('#authModal').modal('hide');
+                $("#my_table").bootstrapTable("refresh");
+            },
+            error: function (data) {
+                Ladda.stopAll();
+                var content = data.responseText;
+                var json = $.parseJSON(data.responseText);
+                if (typeof json.detail != 'undefined') content = json.detail;
+                $.alert({
+                    title: '操作失败',
+                    content: content
+                });
+            }
+        })
+    }
+});
+
+/**
+ * 修改主机名
+ * */
+$("#changeHostnameButton").on("click", function(e) {
+    var form = $("#changeHostnameForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#changeHostnameButton') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'patch',
+                url: "/api/host/changehostname/?format=json",
+                success: function(data) {
+                    $("#changeHostnameForm").resetForm();
+                    $('#changeHostnameModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                    Ladda.stopAll();
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '操作失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#changeHostnameForm").submit();
+});
+
+/**
+ * 修改主机服务
+ * */
+$("#changeHostServiceButton").on("click", function(e) {
+    var form = $("#changeHostServiceForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#changeHostServiceButton') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'patch',
+                url: "/api/host/changeservice/?format=json",
+                success: function(data) {
+                    $("#changeHostServiceForm").resetForm();
+                    $('#changeHostServiceModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                    Ladda.stopAll();
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '操作失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#changeHostServiceForm").submit();
+});
+
+/**
+ * 修改备注
+ * */
+$("#hostDescButton").on("click", function(e) {
+    var form = $("#hostDescForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#hostDescButton') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'patch',
+                success: function(data) {
+                    $("#hostDescForm").resetForm();
+                    $('#hostDescModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                    Ladda.stopAll();
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '操作失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#hostDescForm").submit();
+});
+
+
+/**
+ *
+ * 批量修改状态
+ * */
+$("#change_server_state").on("click", function(e) {
+    $("#change_state_id").val('');
+    $("#piliang_change_state").val('');
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ids = [];
+        for (var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        $("#change_state_id").val(ids.join(","));
+        $("#changeStateModal").modal("show");
+    } else {
+        $.alert({
+            title: '错误提示',
+            content: '请选择要操作的主机'
+        });
+    }
+});
+
+/**
+ *
+ * 批量修改Upstream状态
+ * */
+$("#change_server_upstream_state").on("click", function(e) {
+    $("#change_upstream_state_ip").val('');
+    $("#change_upstream_state").val('');
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ips = [];
+        for (var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ips.push(t['ip']);
+        }
+        $("#change_upstream_state_ip").val(ips.join(","));
+        $("#upstreamStateModal").modal("show");
+    } else {
+        $.alert({
+            title: '错误提示',
+            content: '请选择要操作的主机'
+        });
+    }
+});
+
+/**
+ * 批量缩容
+ * */
+$("#piliang_reduce").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ips = [];
+        for(var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ips.push(t['ip']);
+        }
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要从服务 {{ service.name }} 卸载选中主机吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/app/reducebyip/?format=json",
+                            data: {ip: ips.join(","), service_id: '{{ service.id }}' },
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+});
+
+/*******************主机操作绑定**********************/
+
+
+/*******************服务操作绑定**********************/
+
+/**
+ *
+ * */
+$("#service_lb").on('click', function(e) {
+    var height = $(window).height();
+    var width = $(window).width();
+    $("#lb_iframe").attr('height', height - 155);
+    $('#lb_modal').modal('show');
+});
+
+/**
+ * 按ip扩容
+ * */
+$("#ipExpansionButton").on("click", function(e) {
+    var ip = $("#ip_expansion_value").val();
+    $.confirm({
+        title: 'Confirm!',
+        content: '确定要扩容输入的主机吗?',
+        buttons: {
+            confirm: {
+                text: '确认',
+                btnClass: 'btn-blue',
+                action: function () {
+                    var l = Ladda.create( document.querySelector('#ipExpansionButton') );
+                    l.start();
+                    $.ajax({
+                        type: 'post',
+                        url: "/api/app/scaleoutbyip/?format=json",
+                        data: {ip: ip, service_id: service_id},
+                        success: function(data) {
+                            Ladda.stopAll();
+                            $("#ipExpansionForm").resetForm();
+                            $('#ipExpansionModal').modal('hide');
+                            $('#my_table').bootstrapTable("refresh");
+                        },
+                        error: function(data) {
+                            Ladda.stopAll();
+                            var content = data.responseText;
+                            var json = $.parseJSON(data.responseText);
+                            if(typeof json.detail != 'undefined') content = json.detail;
+                            $.alert({
+                                title: '操作失败',
+                                content: content
+                            });
+                        }
+                    })
+                }
+            },
+            cancel: {
+                text: '取消',
+                action: function () {
+                }
+            }
+        }
+    });
+});
+
+/**
+ * 自动扩容
+ * */
+$("#autoExpansionButton").on("click", function(e) {
+    var form = $("#autoExpansionForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#ipExpansionButton') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'post',
+                url: "/api/app/autoscaleout/?format=json",
+                success: function(data) {
+                    Ladda.stopAll();
+                    $("#autoExpansionForm").resetForm();
+                    $('#autoExpansionModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '操作失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#autoExpansionForm").submit();
+});
+
+/**
+ * 初始化服务信息
+ * */
+$("#app_edit").on('click', function(e) {
+    $.get('/api/app/service/{{ service.id }}/', {format: 'json'}, function(data) {
+        $("#_type").val(data.type)
+        $("#_comment").val(data.comment);
+        $("#_app_id").val(data.app_id);
+        $("#_name").val(data.name);
+        $("#updateAppModal").modal('show');
+    })
+});
+
+/**
+ * 修改服务信息
+ * */
+$("#updateAppSubmit").on("click", function(e) {
+    var form = $("#updateAppForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#updateAppSubmit') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'patch',
+                url: '/api/app/service/{{ service.id }}/',
+                success: function(data) {
+                    Ladda.stopAll();
+                    window.location.reload();
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '修改失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#updateAppForm").submit();
+});
+
+/**
+ * 删除服务
+ * */
+$("#app_delete").on("click", function(e) {
+    $.confirm({
+        title: 'Confirm!',
+        content: '确定要删除该服务吗?',
+        buttons: {
+            confirm: {
+                text: '确认',
+                btnClass: 'btn-blue',
+                action: function () {
+                    $.ajax({
+                        type: 'delete',
+                        url: "/api/app/service/{{ service.id }}/",
+                        success: function(data) {
+                            window.location.reload();
+                        },
+                        error: function(data) {
+                            var content = data.responseText;
+                            var json = $.parseJSON(data.responseText);
+                            if(typeof json.detail != 'undefined') content = json.detail;
+                            $.alert({
+                                title: '删除失败',
+                                content: content
+                            });
+                        }
+                    })
+                }
+            },
+            cancel: {
+                text: '取消',
+                action: function () {
+                }
+            }
+        }
+    });
+})
+
+
+/*******************服务操作绑定**********************/
+
+/**
+ * 按ip缩容
+ * */
+$("#ipReduceButton").on("click", function(e) {
+    var ip = $("#ip_reduce_value").val();
+    $.confirm({
+        title: 'Confirm!',
+        content: '确定要卸载输入的主机吗?',
+        buttons: {
+            confirm: {
+                text: '确认',
+                btnClass: 'btn-blue',
+                action: function () {
+                    var l = Ladda.create( document.querySelector('#ipReduceButton') );
+                    l.start();
+                    $.ajax({
+                        type: 'delete',
+                        url: "/api/app/reducebyip/?format=json",
+                        data: {ip: ip, service_id: service_id},
+                        success: function(data) {
+                            Ladda.stopAll();
+                            $("#ipReduceForm").resetForm();
+                            $('#ipReduceModal').modal('hide');
+                            $('#my_table').bootstrapTable("refresh");
+                        },
+                        error: function(data) {
+                            Ladda.stopAll();
+                            var content = data.responseText;
+                            var json = $.parseJSON(data.responseText);
+                            if(typeof json.detail != 'undefined') content = json.detail;
+                            $.alert({
+                                title: '操作失败',
+                                content: content
+                            });
+                        }
+                    })
+                }
+            },
+            cancel: {
+                text: '取消',
+                action: function () {
+                }
+            }
+        }
+    });
+});
+
+/*******************服务操作绑定**********************/
+
+/**
+ *
+ * 同步阿里云主机
+ * */
+$("#sync_aliyun").on("click", function(e) {
+    $.confirm({
+        title: 'Confirm!',
+        content: '确定要执行同步操作吗?',
+        buttons: {
+            confirm: {
+                text: '确认',
+                btnClass: 'btn-blue',
+                action: function () {
+                    var l = Ladda.create( document.querySelector('#sync_aliyun') );
+                    l.start();
+                    $.ajax({
+                        type: 'post',
+                        url: "/api/host/syncaliyun/",
+                        success: function(data) {
+                            Ladda.stopAll();
+                            $.alert({
+                                title: '操作成功',
+                                content: data.msg
+                            });
+                        },
+                        error: function(data) {
+                            var content = data.responseText;
+                            var json = $.parseJSON(data.responseText);
+                            if(typeof json.detail != 'undefined') content = json.detail;
+                            $.alert({
+                                title: '操作失败',
+                                content: content
+                            });
+                            Ladda.stopAll();
+                        }
+                    })
+                }
+            },
+            cancel: {
+                text: '取消',
+                action: function () {
+                }
+            }
+        }
+    });
+})
+</script>

@@ -1,0 +1,12 @@
+@charset "utf-8";
+/* CSS Document */
+/*登录页面样式*/
+.login-content{ margin:35px 0px -20px 0px; height:450px; margin:0 auto; text-align:center;}
+.login-content .login-img{ width:410px; margin-top:80px; margin-left:26px; }
+.login-content .login-img img{ width:100%;}
+.login-box{ padding:20px 25px 20px; background-color:rgba(255, 255, 255, 0.7); width:330px; margin:30px auto 0;}
+.login-box .form-group{ margin:32px 0px; }
+.login-box h3{ color:#EEBD0C; font-size:26px; line-height:60px; text-align:center; border-bottom:1px solid #ccc; margin-bottom:40px;}
+.login-box .form-control{ background-color:#fff; height:40px; border-radius:0;}
+.login-box .btn{ background-color:#39be97; border-radius: inherit;color: #fff;font-size: 20px; margin-top:30px;}
+.login-box .erro-infor{ color: #EEBD0C; margin: -20px 0px; display:none; }

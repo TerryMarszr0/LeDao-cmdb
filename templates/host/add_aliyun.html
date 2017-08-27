@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/upload/fileinput.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/loading.js"></script>
+    <script src="/static/libs/upload/ajaxfileupload.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> <a title="返回" href="" id="go_back" onclick="history.back(-1);"><span class="glyphicon glyphicon-arrow-left"></span></a>&nbsp;&nbsp;新增资产</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+
+                <div class="ibox-content">
+                    <div id="my_tab" style="margin: 10px 0px 10px 0px">
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation"><a href="/host/addhost/">资产录入</a></li>
+                            <li role="presentation" class="active"><a href="/host/addaliyun/">阿里云录入</a></li>
+                        </ul>
+                     </div>
+                    <div id="rtn_msg" class="alert alert-success" role="alert" style="display: none"></div>
+                    <form id="addHostForm">
+
+
+
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span> <label for="_title" class="control-label">阿里云实例id:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <textarea id="aliyun_id" name="aliyun_id" rows="5" class="form-control required"></textarea>
+                            </div>
+                        </div>
+                      </div>
+
+                     <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span> <label for="_title" class="control-label">实例类型:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="attribute" name="attribute" class="form-control required">
+                                    <option value="">---</option>
+                                    {% for c in instance_type %}
+                                    <option value="{{ c.0 }}">{{ c.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span> <label for="_title" class="control-label">业务环境:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="attribute" name="attribute" class="form-control required">
+                                    <option value="">---</option>
+                                    {% for c in env_list %}
+                                    <option value="{{ c.0 }}">{{ c.1 }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+
+                    <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <label for="_title" class="control-label">服务:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <select id="service_id" name="service_id[]" multiple="multiple" class="form-control">
+                                    <option value="" selected>服务</option>
+                                </select>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                                <span style="color:red">* </span> <label for="_title" class="control-label">费用:</label>
+                            </div>
+                            <div class="col-lg-6">
+                                <input type="text" id='amount' name="amount" value="0" class="form-control required"/>
+                            </div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div id="my_grid"></div>
+                        </div>
+                      </div>
+
+                      <div class="form-group">
+                        <div class="row">
+                            <div class="col-lg-2" style="text-align: right">
+                            </div>
+                            <div class="col-lg-6">
+                                <button type="button" id="addHostButton" class="btn btn-primary"> 提交 </button>
+                                <button type="reset" class="btn btn-default"> 重置 </button>
+                            </div>
+                        </div>
+                      </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block self_footer_js %}
+<script>
+
+$.get("/api/app/service/?format=json&limit=10000", {}, function(data) {
+    var results = data.results;
+    var lists = [];
+    lists.push({id: "", text: '---', value: ''});
+    for(var i = 0 in results) {
+        var row = results[i];
+        t = {id:row.id, text: row.name, value: row.id};
+        lists.push(t);
+    }
+    $("#service_id").empty();
+    $("#service_id").select2({
+        placeholder: "",
+        data: lists
+    });
+})
+
+{#initCombobox({#}
+{#    renderTo: "service_id",#}
+{#    url: "/api/app/service/?format=json&limit=10000",#}
+{#    defaultValue: "",#}
+{#    responseHandler: function(data) {#}
+{#        var results = data.results;#}
+{#        var lists = [];#}
+{#        lists.push({text: '---', value: ''});#}
+{#        for(var i = 0 in results) {#}
+{#            var row = results[i];#}
+{#            t = {text: row.app_name + "/" + row.name, value: row.id};#}
+{#            lists.push(t);#}
+{#        }#}
+{#        return lists;#}
+{#    }#}
+{#});#}
+
+$("#addHostButton").on("click", function(e) {
+    var form = $("#addHostForm").validate({
+        rules:{
+            amount:{
+                number: true,
+                min: 0
+            }
+        },
+        submitHandler: function(form) {
+            $.bootstrapLoading.start({ loadingTips: "正在处理数据，请稍候..." });
+            $(form).ajaxSubmit({
+                type: 'post',
+                url: "/api/host/addaliyun/",
+                success: function(data) {
+                    $("#rtn_msg").text("新增实例成功");
+                    $("#rtn_msg").removeClass("alert-danger");
+                    $("#rtn_msg").addClass("alert-success");
+                    $.bootstrapLoading.end();
+                    $("#rtn_msg").show();
+                    $("#rtn_msg").focus();
+                    $("html,body").animate({scrollTop:0}, 10)
+                },
+                error: function(data) {
+                    $.bootstrapLoading.end();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.errors != 'undefined') {
+                        init_errors(json.errors);
+                    } else {
+                        if (typeof json.detail != 'undefined') content = json.detail;
+                        $("#rtn_msg").text("新增设备失败:" + content);
+                        $("#rtn_msg").removeClass("alert-success");
+                        $("#rtn_msg").addClass("alert-danger");
+                        $("#rtn_msg").show();
+                        $("#rtn_msg").focus();
+                        $("html,body").animate({scrollTop: 0}, 10)
+                    }
+                }
+            });
+        }
+    });
+    $("#addHostForm").submit();
+});
+
+
+function errorFormatter(value, row, index) {
+    var html = value;
+    html = "<div style='background:red; color:#FFF; text-align:center; min-width: 80px;'>" + html + "</div>";
+    return html;
+}
+
+function init_errors(errors) {
+    $("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+    if (errors.length > 0) {
+        var item = errors[0];
+        var columns = []
+        for(var k in item) {
+            t = {field: k, title: k}
+            if(k == 'error') {
+                t['formatter'] = errorFormatter
+            }
+            columns.push(t);
+        }
+        var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+            columns: columns,
+            data: errors,
+            clickToSelect: false,
+            striped: true,
+            onPostBody: function () {
+                $('.cell-pro').each(function(index, e){
+                    var $ee = $(e);
+                    if($ee.text()){
+                        var color = $ee.css('color');
+                        var $father = $ee.parent('td');
+                        $father.css({'background-color': color});
+                        $ee.css({'color': '#ffffff'});
+                    }
+                });
+            },
+        });
+    }
+}
+</script>
+
+{% endblock %}

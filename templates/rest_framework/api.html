@@ -1,0 +1,138 @@
+{% extends "rest_framework/base.html" %}
+
+{% block branding %}
+
+    <a class='navbar-brand' href='/api/home/apidoc/'>使用手册</a>
+
+    <ul class="nav navbar-nav">
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                IDC管理
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/api/asset/room/">机房列表</a></li>
+                <li><a href="/api/asset/room/1/">机房详情（按ID查）</a></li>
+                <li><a href="/api/asset/rack/">机柜列表</a></li>
+                <li><a href="/api/asset/rack/1/">机柜详情（按ID查）</a></li>
+                <li><a href="/api/asset/model/">型号列表</a></li>
+                <li><a href="/api/asset/model/1/">型号详情（按ID查）</a></li>
+                <li><a href="/api/asset/conf/">配置列表</a></li>
+                <li><a href="/api/asset/conf/1/">配置详情（按ID查）</a></li>
+                <li><a href="/api/asset/network/">网段列表</a></li>
+                <li><a href="/api/asset/network/1/">网段详情（按ID查）</a></li>
+            </ul>
+        </li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                服务管理
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/api/app/group/">业务线列表</a></li>
+                <li><a href="/api/app/group/1/">业务线详情（按ID查）</a></li>
+                <li><a href="/api/app/app/">应用列表</a></li>
+                <li><a href="/api/app/app/1/">应用详情（按ID查）</a></li>
+                <li><a href="/api/app/service/">服务列表</a></li>
+                <li><a href="/api/app/service/1/">服务详情（按ID查）</a></li>
+                <li><a href="/api/app/scaleoutbyip/">按ip扩容</a></li>
+                <li><a href="/api/app/autoscaleout/">服务自动扩容</a></li>
+                <li><a href="/api/app/reducebyip/">按ip缩容</a></li>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                主机管理
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/api/host/host/">主机列表</a></li>
+                <li><a href="/api/host/host/1/">主机详情（按ID查）</a></li>
+                <li><a href="/api/host/servicehost/">服务主机列表</a></li>
+                <li><a href="/api/host/upload/">主机上传</a></li>
+                <li><a href="/api/host/changestate/">修改主机状态</a></li>
+                <li><a href="/api/host/changeservice/">主机移动</a></li>
+                <li><a href="/api/host/changehostname/">修改主机名</a></li>
+                <li><a href="/api/host/password/">修改/查询密码</a></li>
+                <li><a href="/api/host/image/">系统镜像列表</a></li>
+                <li><a href="/api/host/image/1/">系统镜像详情（按ID查）</a></li>
+                <li><a href="/api/host/mount/">主机挂载</a></li>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                负载均衡
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/api/lb/lb/">LB列表</a></li>
+                <li><a href="/api/lb/lb/1/">LB详情</a></li>
+                <li><a href="/api/lb/location/">location列表</a></li>
+                <li><a href="/api/lb/location/1/">location详情</a></li>
+                <li><a href="/api/lb/nginxconf/1/">Nginx配置详情</a></li>
+                <li><a href="/api/lb/changeServiceHostState/">修改主机Upstream状态</a></li>
+                <li><a href="/api/lb/lbhosts/?domain=&env=">LB主机列表</a></li>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                堡垒机管理
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/api/fortress/applyrecord/">授权申请列表</a></li>
+                <li><a href="/api/fortress/applyrecord/1/">授权申请详情（按ID查）</a></li>
+                <li><a href="/api/fortress/changeapplystate/">授权审核</a></li>
+                <li><a href="/api/fortress/myapply/">我的申请记录</a></li>
+                <li><a href="/api/fortress/applytask/">授权任务</a></li>
+                <li><a href="/api/fortress/authrecord/">授权记录列表</a></li>
+                <li><a href="/api/fortress/authrecord/1/">授权记录详情（按ID查）</a></li>
+                <li><a href="/api/fortress/userhost/">用户授权记录列表</a></li>
+                <li><a href="/api/fortress/mysshkey/">我的SSH Key</a></li>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                用户管理
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/api/user/user/">用户列表</a></li>
+                <li><a href="/api/user/user/1/">用户详情（按ID查）</a></li>
+                <li><a href="/api/user/token/">用户Token</a></li>
+                <li><a href="/api/user/newtoken/">更新用户Token</a></li>
+                <li><a href="/api/tokenauth/">根据用户名密码获取Token</a></li>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                变更管理
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/api/change/change/">变更记录列表</a></li>
+                <li><a href="/api/change/change/1/">变更记录详情（按ID查）</a></li>
+                <li><a href="/api/public/task/">异步任务列表</a></li>
+                <li><a href="/api/public/redotask/">重做任务</a></li>
+            </ul>
+        </li>
+
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                其他API
+                <b class="caret"></b>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a href="/api/public/quicksearch/">快速搜索</a></li>
+            </ul>
+        </li>
+    </ul>
+
+
+{% endblock %}
+

@@ -1,0 +1,116 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+        <ul class="nav" id="side-menu">
+            {% include 'nav_li_profile.html' %}
+
+{#  版本 3 根据不同身份的人列出不同的菜单 #}
+{% for menu in menus %}
+    {% if menu.has_children == True %}
+            <li class="left-menu">
+                <a><i class="fa fa-{{ menu.tag }}"></i> <span class="nav-label">{{ menu.name }}</span><span class="fa arrow"></span></a>
+                    <ul class="nav nav-second-level">
+                        {% for sub_menu in menu.children %}
+                               <li class="left-menu">
+                                    <a class="menu-path" href="{{ sub_menu.path }}">
+                                        </i>
+                                        {{ sub_menu.name }}
+                                    </a>
+                                </li>
+                        {% endfor %}
+                    </ul>
+            </li>
+    {% endif %}
+{% endfor %}
+
+{# 版本 2 数据是根据menu表中的数据来不能根据人员的身份进行菜单选择显示，而是把菜单中的所有的都显示 #}
+{#            {% for menu in menus %}#}
+{#					<li class="left-menu">#}
+{#						{% if menu.has_child %}#}
+{#                            {% if menu.name not in menu.superPermission or user.is_superuser == 1 %}#}
+{#                                <a><i class="fa fa-{{ menu.tag }}"></i> <span class="nav-label">{{ menu.name }}</span><span class="fa arrow"></span></a>#}
+{#                                <ul class="nav nav-second-level">#}
+{#                                    {% for sub_menu in menu.children %}#}
+{#                                        {% if sub_menu.name not in sub_menu.staffPermission or user.is_superuser == 1 or user.is_staff == 1%}#}
+{#                                            <li class="left-menu">#}
+{#                                                <a class="menu-path" href="{{ sub_menu.path }}">#}
+{#                                                    </i>#}
+{#                                                    {{ sub_menu.name }}#}
+{#                                                </a>#}
+{#                                            </li>#}
+{#                                        {% endif %}#}
+{#                                    {% endfor %}#}
+{#                                </ul>#}
+{#                            {% endif %}#}
+{#						{% endif %}#}
+{#					</li>#}
+{#			{% endfor %}#}
+
+
+{# 版本 1 最初始的版本数据是写死的 #}
+{#            {% if user.is_superuser == 1 %}#}
+{#            <li id="user">#}
+{#                <a href="#"><i class="fa fa-group"></i> <span class="nav-label">系统管理</span><span class="fa arrow"></span></a>#}
+{#                <ul class="nav nav-second-level">#}
+{#                    <li class="user"><a href="/user/user/">查看用户</a></li>#}
+{#                    <li class="menu"><a href="/user/menu/">查看菜单</a></li>#}
+{#                </ul>#}
+{#            </li>#}
+{#            {% endif %}#}
+{##}
+{#            <li id="app">#}
+{#                <a><i class="fa fa-list"></i> <span class="nav-label">服务管理</span><span class="fa arrow"></span></a>#}
+{#                <ul class="nav nav-second-level">#}
+{#                    {% if user.is_superuser == 1 or user.is_staff == 1%}#}
+{#                    <li class="group" id="app_group_li"><a href="/app/group/">查看业务线</a></li>#}
+{#                    {% endif %}#}
+{#                    <li class="app_line" id="app_line_li"><a href="/app/app/">查看应用</a></li>#}
+{#                    <li class="service" id="app_app_li"><a href="/app/service/">查看服务</a></li>#}
+{#                </ul>#}
+{#            </li>#}
+{##}
+{#            <li id="asset">#}
+{#                <a><i class="fa fa-inbox"></i> <span class="nav-label">资产管理</span><span class="fa arrow"></span></a>#}
+{#                <ul class="nav nav-second-level">#}
+{#                    <li class="apphost" id="asset_host"> <a href="/host/apphost/">查看资产</a></li>#}
+{#                    <li class="room"> <a href="/asset/room/">查看机房</a></li>#}
+{#                    <li class="os" id="host_os_li"> <a href="/host/image/">查看镜像</a></li>#}
+{#                    <li class="conf"> <a href="/asset/conf/">查看配置</a></li>#}
+{#                    <li class="network"> <a href="/asset/network/">查看网段</a></li>#}
+{#                </ul>#}
+{#            </li>#}
+{##}
+{#            <li id="fortress">#}
+{#                <a><i class="fa fa-laptop"></i> <span class="nav-label">堡垒机管理</span><span class="fa arrow"></span></a>#}
+{#                <ul class="nav nav-second-level">#}
+{#                    <li class="myapply"> <a href="/fortress/myapply/">授权申请</a></li>#}
+{#                    <li class="myauthrecord"> <a href="/fortress/myauthrecord/">我的授权</a></li>#}
+{#                    {% if user.is_superuser == 1 or user.is_staff == 1%}#}
+{#                    <li class="audit"> <a href="/fortress/audit/">授权审批</a></li>#}
+{#                    <li class="authrecord"> <a href="/fortress/authrecord/">授权查询</a></li>#}
+{#                    {% endif %}#}
+{#                </ul>#}
+{#            </li>#}
+{#            <!--#}
+{#            <li id="slb">#}
+{#                <a><i class="fa fa-sitemap"></i> <span class="nav-label">负载均衡管理</span><span class="fa arrow"></span></a>#}
+{#                <ul class="nav nav-second-level">#}
+{#                    <li class="slb"><a href="/lb/slb/">查看负载均衡</a></li>#}
+{#                </ul>#}
+{#            </li>#}
+{#            -->#}
+{#            <li id="change">#}
+{#                <a><i class="fa fa-tasks"></i> <span class="nav-label">变更管理</span><span class="fa arrow"></span></a>#}
+{#                <ul class="nav nav-second-level">#}
+{#                    <li class="change"><a href="/change/change/">变更查询</a></li>#}
+{#                    {% if user.is_superuser == 1 or user.is_staff == 1%}#}
+{#                    <li class="task" id="task_page"><a href="/public/task/">任务查询</a></li>#}
+{#                    {% endif %}#}
+{#                </ul>#}
+{#            </li>#}
+        </ul>
+    </div>
+</nav>
+
+
+
+

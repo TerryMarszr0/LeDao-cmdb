@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<title>1号店云平台</title>
+<!-- Bootstrap -->
+<link href="../css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link href="../css/jquery.bootgrid.min.css" rel="stylesheet" type="text/css">
+<link href="../css/common.css" rel="stylesheet" type="text/css">
+<link href="../css/dan.css" rel="stylesheet" type="text/css">
+<link href="../css/icomoon.css" rel="stylesheet" type="text/css">
+<!--<link href="../css/style.min.css" rel="stylesheet" type="text/css">
+
+<!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+<script src="../js/jquery-1.11.3.min.js"></script>
+<script src="../js/bootstrap.min.js"></script>
+<script src="../js/reset.js"></script>
+<script src="../js/jquery.bootgrid.min.js"></script>
+<script>$("#grid-basic").bootgrid();</script>
+<script src="../js/maMenu.js"></script>
+<style>
+.footer{z-index:10;}
+.side-menu{ position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    background-color:#DDE3E3;
+    width: 100%;
+    height: 100%;
+	padding-top:50px;
+	padding-bottom:90px;
+    box-shadow: 0;
+    -webkit-transform: translateX(-100%);
+    -ms-transform: translateX(-100%);
+    transform: translateX(-100%);
+    -webkit-transition: -webkit-transform .5s, box-shadow .5s;
+    transition: transform .5s, box-shadow .5s;
+} 
+@media (min-width: 300px){
+.side-menu {
+    width: 200px;
+    -webkit-transform: translateX(-150px);
+    -ms-transform: translateX(-150px);
+    transform: translateX(-150px);
+	}
+}
+.side-menu.active {
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    -webkit-transform: translateX(0);
+    -ms-transform: translateX(0);
+    transform: translateX(0);
+}	
+.side-menu .side-title{ position:relative;height:40px; line-height:40px;font-size:16px; padding:0 10px; border-bottom:1px solid #fff;}
+.side-menu .list li{ width:100%;line-height:34px; }
+.side-menu .list>li{border-bottom:1px solid #fff; line-height:40px; padding:10px 0px;}
+.side-menu .list li a{ display:block; color:#1E948F; padding:0 10px;}
+.side-menu .list ol li{ position:relative; z-index:30;}
+.side-menu .list ol li a{ padding-left:20px; position:relative;}
+.side-menu .list ol li.active{ background-color:#fff;}
+.side-menu .list ol li .sline{ position:absolute; display:block; height:34px; width:5px;top:0px;right:-5px; background-color:#fff;}
+.side-menu .list li i{ float:right;}
+.mm-menu-toggle {
+	float:right;
+	width: 24px;
+	height: 18px;
+	font-size: 20px;
+	color:#1E948F;
+}
+
+.side-menu .list ol li.act .arrow,.side-menu .list ol li.act .arrow::after{ position:absolute;display:block;width:0px;height:0px; border-color:transparent; border-style:solid;}
+/*border三角形
+.side-menu .list ol li.act .arrow{top:0px;right:-15px; border-width:15px;border-left-color:#ccc; border-right-width:0; }
+.side-menu .list ol li.act .arrow::after{content:"";top:-14px;right:1px; border-width:14px; border-left-color:#E4F8F8;border-right-width:0;}
+
+.side-menu .list ol li.act{ background-color:#C4C4C4;}
+.side-menu .list ol li.act .arrow{top:0px;right:-2px; border-width:15px;border-right-color:#fff; border-left-width:0; }
+
+*/
+.maincontent{
+	-webkit-transition:-webkit-transform .5s;
+	transition: transform .5s;
+	width:100%;
+	padding-left:50px;
+	}
+.maincontent.side-menu-open{ padding-left:200px;}
+
+
+</style>
+</head>
+<body>
+<header class="navbar-fixed-top"> 
+  <!--菜单-->
+  <div class="navbar navbar-default com-nav-sty dan-nav-sty"> 
+    <!--logo和小屏菜单按钮-->
+    <div class="navbar-header"> <a class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false" > <span class="icon-bar"> </span> <span class="icon-bar"> </span> <span class="icon-bar"> </span> </a> <a href="_" class="navbar-brand"><img alt="云平台" src="../images/logo22.png"/></a> </div>
+    <!--分类菜单-->
+    <nav id="bs-navbar" class="collapse navbar-collapse">
+      <ul class="nav navbar-nav">
+        <li class="act dropdown"> <a class="dropdown-toggle" data-toggle="dropdown" href="#">产品与服务<b class="caret"></b></a> 
+          <!--产品下拉begin-->
+          <section class="dropdown-menu full-menu" role="menu">
+            <ul class="item">
+              <li class="title">监控服务</li>
+              <li><a href="#"><i class="glyphicon glyphicon-signal"></i>基础监控</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-credit-card"></i>业务监控</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-duplicate"></i>日志监控</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-blackboard"></i>大屏监控</a></li>
+            </ul>
+            <ul class="item">
+              <li class="title">排障服务</li>
+              <li><a href="#"><i class="glyphicon glyphicon-list"></i>事件管理</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-exclamation-sign"></i>告警管理</a></li>
+            </ul>
+            <ul class="item">
+              <li class="title">配置服务</li>
+              <li><a href="#"><i class="glyphicon glyphicon-cog"></i>基础信息</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-hdd"></i>IDC</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-wrench"></i>部署</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-plane"></i>发布</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-search"></i>DNS</a></li>
+            </ul>
+            <ul class="item">
+              <li class="title">分析服务</li>
+              <li><a href="#"><i class="glyphicon glyphicon-question-sign"></i>QA</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-oil"></i>容量分析</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-usd"></i>cost</a></li>
+            </ul>
+            <ul class="item">
+              <li class="title">其他服务</li>
+              <li><a href="#"><i class="glyphicon glyphicon-cutlery"></i>小工具</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-book"></i>PMS</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-fire"></i>安全</a></li>
+              <li><a href="#"><i class="glyphicon glyphicon-flag"></i>KPI</a></li>
+            </ul>
+          </section>
+          <!--产品下拉end--> 
+          <!--end dropdown-menu--> 
+        </li>
+        <li class="dropdown"> <a class="dropdown-toggle" data-toggle="dropdown" href="#" >监控服务</a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">日志</a></li>
+            <li><a href="#">订单</a></li>
+            <li><a href="#">大屏</a></li>
+            <li><a href="#">监控数据</a></li>
+          </ul>
+          <!--end dropdown-menu--> 
+        </li>
+        <li class="dropdown"> <a class="dropdown-toggle" data-toggle="dropdown" href="#" >排障服务</a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">事件管理</a></li>
+            <li><a href="#">告警管理</a></li>
+          </ul>
+          <!--end dropdown-menu--> 
+        </li>
+        <li class="dropdown"> <a class="dropdown-toggle" data-toggle="dropdown" href="#">配置服务</a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">基础信息</a></li>
+            <li><a href="#">IDC</a></li>
+            <li><a href="#">布署</a></li>
+            <li><a href="#">发布</a></li>
+            <li><a href="#">DNS</a></li>
+          </ul>
+          <!--end dropdown-menu--> 
+        </li>
+        <li class="dropdown"> <a  class="dropdown-toggle" data-toggle="dropdown" href="#">分析服务</a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">QA</a></li>
+            <li><a href="#">容量分析</a></li>
+            <li><a href="#">cost</a></li>
+          </ul>
+          <!--end dropdown-menu--> 
+        </li>
+        <li class="dropdown"> <a class="dropdown-toggle" data-toggle="dropdown" href="#">其他服务++</a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#">小工具</a></li>
+            <li><a href="#">PMS</a></li>
+            <li><a href="#">KPI</a></li>
+            <li><a href="#">安全</a></li>
+          </ul>
+          <!--end dropdown-menu--> 
+        </li>
+      </ul>
+      <!--菜单右侧-->
+      <ul class="navbar-form navbar-right">
+        <li class="dropdown"><a href="#" data-toggle="dropdown"><em>panluyan</em><b class="caret"></b></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+            <li><a href="http://oms.yihaodian.com.cn/home/sys/feedback.action">反馈中心</a></li>
+            <li><a target="_blank" href="http://oms.yihaodian.com.cn/cmdbv2/change/exception_report/">异常报表中心</a></li>
+            <li><a href="http://oms.yihaodian.com.cn/home/login/doOut.action">退出</a></li>
+          </ul>
+        </li>
+        <li class="dropdown"><a href="#" class="color1" data-toggle="dropdown">流程管理<b class="caret">&nbsp;</b></a>
+          <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+            <li><a target="_blank" tabindex="-1" href="http://oms.yihaodian.com.cn/ticket/?action=ticket&amp;method=addTicketResetSmarty">重启流程</a></li>
+            <li><a target="_blank" tabindex="-1" href="http://oms.yihaodian.com.cn/ticket/?action=ticket&amp;method=getMyticketSmarty">我的流程</a></li>
+            <li><a target="_blank" tabindex="-1" href="http://oms.yihaodian.com.cn/ticket/?action=ticket&amp;method=getHandleticketSmarty">待办流程</a></li>
+            <li><a target="_blank" tabindex="-1" href="http://oms.yihaodian.com.cn/ticket/?action=ticket&amp;method=getDoneticketSmarty">已办流程</a></li>
+          </ul>
+        </li>
+        <li><a href="#">帮助中心</a></li>
+        <li>
+          <form class="bs-example bs-example-form" role="form">
+            <div class="input-group top-search-box">
+              <input type="text" class="form-control top-btn">
+              <span class="input-group-btn">
+              <button class="btn btn-default top-btn" type="button"> <i class="glyphicon glyphicon-search"></i> </button>
+              </span> </div>
+            <!-- /input-group -->
+          </form>
+        </li>
+      </ul>
+      <!--菜单右侧end--> 
+    </nav>
+    <!-- end 主菜单--> 
+  </div>
+</header>
+<!--end头部结束--> 
+<!--内页内容盒子-->
+<div class="dancontainer clearfix"> 
+ <div class="side-menu active" id="side-menu"> 
+   <h3 class="side-title">基础监控<a id="mm-menu-toggle" class="mm-menu-toggle"><span class="icon-menu"></span></a></h3>
+  <ul class="list">
+    <li class="item">
+     <a data-toggle="collapse" data-target="#item-infor"><span class="icon-alarm"></span>日志监控 <i class="glyphicon glyphicon-menu-down"></i></a>
+     <ol id="item-infor" class="collapse in">
+       <li class="active"><a href="#">日志问题1</a> <em class="sline"></em></li>
+       <li><a href="#">日志问题2</a></li>
+     </ol>
+    </li>
+    <li class="item">
+     <a data-toggle="collapse" data-target="#item-infor2"><span class="icon-alarm"></span>日志监控 <i class="glyphicon glyphicon-menu-down"></i></a>
+     <ol id="item-infor2">
+       <li class="act"><a href="#">日志问题1</a><span class="arrow"></span></li>
+       <li><a href="#">日志问题2</a></li>
+     </ol>
+    </li>
+    <li class="item">
+     <a data-toggle="collapse" href="#item-infor3"><span class="icon-alarm"></span>日志监控 <i class="glyphicon glyphicon-menu-down"></i></a>
+     <ol id="item-infor3">
+       <li><a href="#">日志问题1</a></li>
+       <li><a href="#">日志问题2</a></li>
+     </ol>
+    </li>
+    <li class="item">
+     <a data-toggle="collapse" href="#item-infor4"><span class="icon-twitter"></span>日志监控 <i class="glyphicon glyphicon-menu-down"></i></a>
+     <ol id="item-infor4">
+       <li><a href="#">日志问题1</a></li>
+       <li><a href="#">日志问题2</a></li>
+     </ol>
+    </li>
+  </ul>
+
+ </div>
+
+
+  <div class="maincontent side-menu-open" id="content">
+    <!--内页的标题-->
+    <div class="inner-h1">重启流程</div>
+    <!--内页的标题end--> 
+    <!--内页存放内容-->
+    <div class="inner-box inner-tab-box"> 
+      
+      <!--table2--> 
+      
+      <!--grid表单-->
+      <div class="dan-table-menu bootgrid-header container-fluid">
+        <div class="form-inline" role="form">
+          <div class="search form-group">
+            <div class="input-group"> 
+              <span class="glyphicon input-group-addon btn glyphicon-search"></span>
+              <input class="form-control" type="text" placeholder="Search"></input>
+            </div>
+          </div>
+          <div class="search form-group">
+            <div class="input-group">
+              <input class="form-control" type="text" placeholder="Search"></input>
+              <span class="glyphicon input-group-addon btn glyphicon-search"></span> </div>
+          </div>
+          <div class="search form-group">
+            <div class="dropdown input-group ">
+              <input class="form-control" type="text" placeholder="Search"></input>
+              <ul class="dropdown-menu" role="menu">
+                <li class="active"><a href="#">123</a></li>
+                <li><a href="#">234</a></li>
+              </ul>
+              <span class="input-group-addon btn dropdown-toggle" data-toggle="dropdown"><i class="caret"></i></span> </div>
+          </div>
+          <div class="search form-group">
+            <input class="form-control" type="text" placeholder="Search"></input>
+          </div>
+          <div class="actions btn-group">
+            <button class="btn btn-default" title="Refresh" type="button"><span class="glyphicon glyphicon-refresh"></span></button>
+            <div class="dropdown btn-group">
+              <button class="btn btn-default dropdown-toggle" data-toggle="dropdown" type="button"><span class="dropdown-text">10</span>&nbsp;<span class="caret"></span> </button>
+              <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                <li aria-selected="true" class="active"><a data-action="10" class="dropdown-item dropdown-item-button">10</a></li>
+                <li aria-selected="false"><a data-action="25" class="dropdown-item dropdown-item-button">25</a></li>
+                <li aria-selected="false"><a data-action="50" class="dropdown-item dropdown-item-button">50</a></li>
+                <li aria-selected="false"><a data-action="-1" class="dropdown-item dropdown-item-button">All</a></li>
+              </ul>
+            </div>
+            
+            <div class="dropdown btn-group">
+              <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown"><span class="dropdown-text"><span class="glyphicon glyphicon-th-list"></span></span> <span class="caret"></span></button>
+              <ul class="dropdown-menu pull-right" role="menu">
+                <li>
+                 <a>
+                  <label class="dropdown-item">
+                    <input name="id" value="1" class="dropdown-item-checkbox" checked="checked" type="checkbox">
+                    ID</label>
+                    </a>
+                </li>
+                <li>
+                 <a> <label class="dropdown-item">
+                    <input name="sender" value="1" class="dropdown-item-checkbox" checked="checked" type="checkbox">
+                    Sender</label></a>
+                </li>
+                <li>
+                <a>
+                  <label class="dropdown-item">
+                    <input name="received" value="1" class="dropdown-item-checkbox" checked="checked" type="checkbox">
+                    Received</label></a>
+                </li>
+                <li>
+                  <a><label class="dropdown-item">
+                    <input name="link" value="1" class="dropdown-item-checkbox" checked="checked" type="checkbox">
+                    Link</label></a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        <button class="btn btn-gray">删除</button>
+        <button class="btn btn-success">成功</button>
+        <button class="btn btn-yell">修改</button>
+        <button class="btn btn-green">提交</button>
+        <button class="btn btn-red">错误</button>
+  
+      </div>  
+      </div>
+      <!--grid表单end--> 
+      <!--grid表格-->
+      
+      <table id="grid-basic" class="table table-bordered table-hover table-striped">
+        <thead>
+          <tr>
+            <th data-column-id="id" data-type="numeric">ID</th>
+            <th data-column-id="sender">Sender</th>
+            <th data-column-id="received" data-order="desc">Received</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>10238</td>
+            <td>eduardo@pingpong.com</td>
+            <td>14.10.2013</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <!--table2--end--> 
+      <!--分页内容信息-->
+      <div class="tab-footer clearfix">
+        <div class="pull-left pagination-detail"> <span class="pagination-info">显示第&nbsp;1&nbsp;到&nbsp;10&nbsp;条记录，总共 &nbsp;5543338&nbsp;条记录</span> <span class="page-list">每页显示 <span class="btn-group dropup">
+          <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="page-size">10</span> <span class="caret"></span></button>
+          <ul class="dropdown-menu" role="menu">
+            <li class="active"><a href="javascript:void(0)">10</a></li>
+            <li><a href="javascript:void(0)">20</a></li>
+            <li><a href="javascript:void(0)">50</a></li>
+            <li><a href="javascript:void(0)">100</a></li>
+          </ul>
+          </span> 条记录</span> </div>
+        <ul class="pull-right pagination pagination-lg">
+          <li><a href="#">&laquo;</a></li>
+          <li><a href="#">1</a></li>
+          <li><a href="#">2</a></li>
+          <li><a href="#">3</a></li>
+          <li><a href="#">4</a></li>
+          <li><a href="#">5</a></li>
+          <li><a href="#">&raquo;</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!--内页存放内容end-->
+  </div>
+  <!--内页内容盒子end-->
+  
+  
+  </div>
+
+<!--footer-->
+<footer class="footer">
+  <div class="container">
+    <p class="link"><a href="#">IT管理平台</a><span>|</span><a href="#">1号店配置中心</a><span>|</span><a href="#">运维1号店WIKI</a> </p>
+    <p class="texinfor">系统反馈：<span>李志刚</span> RTX：<span>lizhigang</span> 邮箱：<span>lizhigang@yihaodian.com</span> </p>
+  </div>
+</footer>
+<!--footer结束-->
+<script>
+$(document).ready(function(){
+	$("#mm-menu-toggle").toggle(function(){
+		
+		
+		
+		
+		
+		});
+	
+	
+	
+	});
+
+
+
+</script>
+
+</body>
+</html>

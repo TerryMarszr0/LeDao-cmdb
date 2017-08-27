@@ -1,0 +1,619 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'nav_cat_bar.html' %}
+
+{% block self_head_css_js %}
+    <link rel="stylesheet" href="/static/libs/bootstrap-combobox/css/bootstrap-combobox.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrapvalidator/dist/css/bootstrapValidator.min.css"/>
+	<link rel="stylesheet" href="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-multiselect/css/bootstrap-multiselect.css" />
+	<link rel="stylesheet" href="/static/libs/bootstrap-table/bootstrap-table.css" />
+    <link rel="stylesheet" href="/static/libs/select2/css/select2.min.css" />
+    <link rel="stylesheet" href="/static/libs/jquery-confirm/jquery-confirm.min.css" />
+
+	<script src="/static/libs/bootstrap-table/bootstrap-table.js"></script>
+	<script src="/static/libs/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+	<script src="/static/libs/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/jquery.validate.js"></script>
+    <script src="/static/libs/select2/js/select2.full.min.js"></script>
+    <script src="/static/libs/jquery-confirm/jquery-confirm.min.js"></script>
+{% endblock %}
+
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins" id="all">
+                <div class="ibox-title">
+                    <h5> 用户列表</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <i class="fa fa-wrench"></i>
+                        </a>
+                        <a class="close-link">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="ibox-content">
+                    <!--内页存放内容-->
+                     <div class="inner-box inner-list-box">
+                        <div id="my_input" class="dan-table-menu form form-inline" >
+
+                            <div class="btn-group" role="group" aria-label="...">
+                                  <button type="button" id="app_refresh" onclick="location.reload();" class="btn btn-sm btn-success">
+                                    <span class="glyphicon glyphicon-refresh"></span> 刷新
+                                  </button>
+                                <button type="button" id="add" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#addModal" data-whatever="@mdo">
+                                    <span class="glyphicon glyphicon-plus"></span> 新增
+                                </button>
+                                <button type="button" id="delete" class="btn btn-sm btn-danger disabled">
+                                    <span class="glyphicon glyphicon-remove"></span> 删除
+                                </button>
+                            </div>
+
+                            <div class="form-group">
+                                <form class="my-form">
+                                    <input id="search" name="search" type="text" class="form-control searchForm" placeholder="用户名/email" >
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="my_grid">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">新增用户</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="addUserForm">
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">用户名:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='username' name="username" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">邮箱:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='email' name="email" class="form-control required email"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">是否超级管理员:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <select id="is_supseruser" name="is_superuser" class="form-control required">
+                        <option value="">---</option>
+                        <option value="0" selected>否</option>
+                        <option value="1">是</option>
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">是否管理员:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="is_staff" name="is_staff" class="form-control required">
+                        <option value="" selected>---</option>
+                        <option value="0">否</option>
+                        <option value="1">是</option>
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">选择相应的组:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="group_list" name="group_list[]" class="form-control" multiple="multiple" style="width: 100%;">
+                        <option value="">组名称</option>
+		            </select>
+	            </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="addUserSubmit" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 提交 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">修改用户信息</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="updateForm" action="">
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">用户名:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='_username' name="username" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">邮箱:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='_email' name="email" class="form-control required email"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">是否超级管理员:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <select id="_is_superuser" name="is_superuser" class="form-control required">
+                        <option value="" selected>---</option>
+                        <option value="0">否</option>
+                        <option value="1">是</option>
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">是否管理员:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_is_staff" name="is_staff" class="form-control required">
+                        <option value="" selected>---</option>
+                        <option value="0">否</option>
+                        <option value="1">是</option>
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">选择相应的组:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_group_list" name="group_list[]" class="form-control" multiple="multiple" style="width: 100%;">
+                        <option value="">组名称</option>
+		            </select>
+	            </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="updateSubmit" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 提交 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 变更日志 -->
+<div class="modal fade" id="changeLogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+          <iframe id="changeLogIFrame" width="100%" height="750px;" style="border:0;" src=""></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 变更日志 -->
+
+{% endblock %}
+
+{% block self_footer_js %}
+<script>
+
+$(".searchForm").on("change", function(e) {
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
+    }
+});
+
+
+var _top = $("#my_grid").offset().top;
+var height = $(window).height() - _top - 20;
+
+$("#my_grid").html('<table id="my_table" data-show-columns="false"></table>');
+
+var columns = [
+                {field: 'chk', title: '复选框', checkbox: true},
+                {field: 'id', title: 'ID'},
+                {field: 'username', title: '用户名'},
+                {field: 'email', title: '邮箱'},
+                {field: 'is_superuser_cn', title: '超级管理员'},
+                {field: 'is_staff_cn', title: '管理员'},
+                {field: 'group_list', title: '组信息'},
+                {field: '_op', title: '操作', formatter: opFormatter, events: "actionEvents"}
+            ];
+
+window.actionEvents = {
+    'click .updateACL': function (e, value, row, index) {
+        var id = row['id'];
+        var username = row['username'];
+        var email = row['email'];
+        var is_superuser = row['is_superuser'];
+        var is_staff = row['is_staff'];
+        $("#_username").val(username);
+        $("#_email").val(email);
+        $("#_is_superuser").val(is_superuser);
+        $("#_is_staff").val(is_staff);
+
+
+        $.get("/api/user/group/?format=json&limit=10000", {}, function(data) {
+            var results = data.results;
+            var lists = [];
+            lists.push({id: "", text: '---', value: ''});
+            for(var i = 0 in results) {
+                var u = results[i];
+                t = {id:u.name, text: u.name, value: u.name};
+                if($.inArray(u.name, row['group_list']) >= 0) {
+                    t['selected'] = true;
+                }
+                lists.push(t);
+            }
+            $("#_group_list").empty();   {# 编辑时：负责人获取下拉菜单 #}
+            $("#_group_list").select2({
+                placeholder: "",
+                data: lists
+            });
+
+        });
+
+
+
+        var url = "/api/user/user/" + id + "/?format=json";
+        $("#updateForm").attr("action", url);
+    },
+    'click .delACL': function (e, value, row, index) {
+        var id = row['id'];
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除该用户吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/user/user/" + id + "/",
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    },
+    'click .changeACL': function (e, value, row, index) {
+        var id = row['id'];
+        $("#changeLogIFrame").attr('src', '/change/reschange/?resource=auth_user&res_id=' + id);
+        $("#changeLogModal").modal('show');
+    }
+};
+
+function opFormatter(value, row, index) {
+    var html = "<a href='#' class='btn btn-xs btn-warning changeACL'>日志</a>";
+    {% if user.is_superuser == 1 or user.is_staff == 1%}
+    html += " <a href='#' class='btn btn-xs btn-info updateACL' data-toggle='modal' data-target='#updateModal' data-whatever='@mdo'>编辑</a>";
+    html += " <a href='#' class='btn btn-xs btn-danger delACL'>删除</a>";
+    {% endif %}
+    return html;
+}
+
+function buttonStatus() {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length <= 0) {
+        $("#delete").addClass("disabled");
+    } else {
+        $("#delete").removeClass("disabled");
+    }
+}
+
+var _table = $('#my_table').bootstrapTable('destroy').bootstrapTable({
+    columns: columns,
+    url: "/api/user/user/?format=json",
+    pagination: true,
+    sidePagination: 'server',
+    pageSize: 20,
+    pageList: [20, 100, 500],
+    clickToSelect: false,
+    striped: true,
+    responseHandler: function (res) {
+        $("#delete").addClass("disabled");
+        var rows = [];
+        var result = res.results;
+        for(var i in result) {
+            var t = result[i];
+            if(t.is_superuser) {
+                t.is_superuser_cn = '是';
+                t.is_superuser = 1;
+            } else {
+                t.is_superuser_cn = '否';
+                t.is_superuser = 0;
+            }
+            if(t.is_staff) {
+                t.is_staff_cn = '是';
+                t.is_staff = 1;
+            } else {
+                t.is_staff_cn = '否';
+                t.is_staff = 0;
+            }
+            rows.push(t);
+        }
+        var data = {total: res.count, rows: rows}
+        return data;
+    },
+    onCheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onUncheck: function (row) {
+        buttonStatus();
+        return false;
+    },
+    onCheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    onUncheckAll: function (rows) {
+        buttonStatus();
+        return false;
+    },
+    queryParams: function (params) {
+
+        /**获取所有class为my-form的表单中的元素名和值*/
+        var form = $(".my-form");
+        if(typeof form != 'undefined') {
+            var arr = form.serializeArray();
+            $.each(arr, function(i, field){
+                params[field.name] = field.value;
+            });
+        }
+        return params;
+    }
+});
+
+$("#addUserSubmit").on("click", function(e) {
+    var form = $("#addUserForm").validate({
+        submitHandler: function(form) {
+
+            var l = Ladda.create( document.querySelector('#addUserSubmit') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'post',
+                url: "/api/user/user/?format=json",
+                success: function(data) {
+
+                    $("#addUserForm").resetForm();
+                    $('#addModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                    Ladda.stopAll();
+
+                    $.get("/api/user/group/?format=json&limit=10000", {}, function(data) {       {# 初始化 #}
+                        var results = data.results;
+                        var lists = [];
+                        lists.push({id: "", text: '---', value: ''});
+                        for (var i = 0 in results) {
+                            var u = results[i];
+                            t = {id: u.name, text: u.name, value: u.name};
+
+                            if($.inArray(u.name, default_group_list) >= 0)
+                            {
+                                t['selected'] = true;
+                            }
+                            else
+                            {
+                                t['selected'] = false;
+                            }
+                            lists.push(t);
+                        }
+                        $("#group_list").empty();    {# 添加时：负责人获取下拉菜单 #}
+                        $("#group_list").select2({
+                            placeholder: "",
+                            data: lists
+                        });
+                    });
+
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '新增失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#addUserForm").submit();
+});
+
+$("#updateSubmit").on("click", function(e) {
+    var form = $("#updateForm").validate({
+        submitHandler: function(form) {
+            var l = Ladda.create( document.querySelector('#updateSubmit') );
+            l.start();
+            $(form).ajaxSubmit({
+                type: 'patch',
+                success: function(data) {
+                    Ladda.stopAll();
+                    $("#updateForm").resetForm();
+                    $('#updateModal').modal('hide');
+                    $('#my_table').bootstrapTable("refresh");
+                },
+                error: function(data) {
+                    Ladda.stopAll();
+                    var content = data.responseText;
+                    var json = $.parseJSON(data.responseText);
+                    if(typeof json.detail != 'undefined') content = json.detail;
+                    $.alert({
+                        title: '修改失败',
+                        content: content
+                    });
+                }
+            });
+        }
+    });
+    $("#updateForm").submit();
+});
+
+$("#delete").on("click", function(e) {
+    var selections = $('#my_table').bootstrapTable("getAllSelections");
+    if(selections.length > 0) {
+        var param = {};
+        var ids = [];
+        for(var i = 0; i < selections.length; i++) {
+            var t = selections[i];
+            ids.push(t['id']);
+        }
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要删除选中用户吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'delete',
+                            url: "/api/user/user/?format=json",
+                            data: {id: ids},
+                            success: function(data) {
+                                $('#my_table').bootstrapTable("refresh");
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '删除失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    }
+});
+
+{######################################################################################################################}
+$.get("/api/user/group/?format=json&limit=10000", {}, function(data) {       {# 查询用户表得到用户的名称 #}
+    var results = data.results;
+
+    $.get("/api/user/user/?format=json&limit=10000", {}, function(data) {
+        var user_results = data.results;
+        default_group_list = user_results[0].default_group_list;
+        var lists = [];
+        lists.push({id: "", text: '---', value: ''});
+        for (var i = 0 in results) {
+            var u = results[i];
+            t = {id: u.name, text: u.name, value: u.name};
+            if($.inArray(u.name, default_group_list) >= 0) {
+                    t['selected'] = true;
+                }
+            lists.push(t);
+        }
+        $("#group_list").empty();    {# 添加时：负责人获取下拉菜单 #}
+        $("#group_list").select2({
+            placeholder: "",
+            data: lists
+        });
+    })
+
+});
+
+{######################################################################################################################}
+</script>
+
+{% endblock %}

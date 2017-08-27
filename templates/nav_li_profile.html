@@ -1,0 +1,327 @@
+<li class="nav-header">
+    <div class="dropdown profile-element">
+        <span>
+            <img alt="image" class="img-circle" width="48" height="48" src="/static/img/user.png" />
+        </span>
+        <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+            <span class="clear">
+                <span class="block m-t-xs">
+                    <strong class="font-bold">{{ user.username}}  <span style="color: #8095a8"></span></strong>
+                </span>
+                <span class="text-muted text-xs block">
+                    {% if user.is_superuser == 1 %} 超级管理员 {% elif user.is_staff == 1 %} 管理员 {% else %} 普通用户 {% endif %} <b class="caret"></b>
+                </span>
+            </span>
+        </a>
+        <ul class="dropdown-menu animated fadeInRight m-t-xs">
+            <li><a href="/user/myinfo/">个人信息</a></li>
+            <!-- <li><a data-toggle="modal" data-target="#pwdModal" data-whatever="@mdo">修改密码</a></li> -->
+            <li><a id="ssh_key_a">SSH Key</a></li>
+            <li><a id="getApiToken">API Token</a></li>
+            <li class="divider"></li>
+            <li><a href="{% url 'logout' %}">注销</a></li>
+        </ul>
+    </div>
+
+    <div class="logo-element">
+        OP+
+    </div>
+</li>
+
+
+<div class="modal fade" id="tokenModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">我的Token</label></h4>
+      </div>
+      <div class="modal-body">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">Token:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<strong><div id="token_key"></div></strong>
+	            </div>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="updateToken" class="btn btn-primary"> 更新 </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="pwdModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">修改密码</label></h4>
+      </div>
+      <div class="modal-body">
+          <form id="pwdForm">
+              <div class="form-group">
+                <div class="row">
+                    <div class="col-lg-3" style="text-align: right">
+                        <label for="_title" class="control-label">旧密码:</label>
+                    </div>
+                    <div class="col-lg-8">
+                        <input type="password" name="old_password" class="form-control required"/>
+                    </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="row">
+                    <div class="col-lg-3" style="text-align: right">
+                        <label for="_title" class="control-label">新密码:</label>
+                    </div>
+                    <div class="col-lg-8">
+                        <input type="password" name="password" id="password" class="form-control required"/>
+                    </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <div class="row">
+                    <div class="col-lg-3" style="text-align: right">
+                        <label for="_title" class="control-label">确认新密码:</label>
+                    </div>
+                    <div class="col-lg-8">
+                        <input type="password" id="password_c" name="password_c" class="form-control required"/>
+                    </div>
+                </div>
+              </div>
+          </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="changePwdButton" class="btn btn-primary"> 更新 </button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 我的ssh key -->
+<div class="modal fade" id="sshkeyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">我的SSH Key</label></h4>
+      </div>
+      <div class="modal-body">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-2" style="text-align: right">
+		            <label for="_title" class="control-label">SSH公钥:</label>
+	            </div>
+	            <div class="col-lg-10">
+                    <textarea id="ssh_key" name="ssh_key" rows="5" class="form-control"></textarea>
+	            </div>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="downloadKeyButton" style="display: none;" class="btn btn-info ladda-button" data-style="expand-right"><span class="ladda-label"> 下载私钥 </span></button>
+        <button type="button" id="sshkeyButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 重新生成 </span></button>
+        <button type="button" id="updateSshkeyButton" class="btn btn-success ladda-button" data-style="expand-right"><span class="ladda-label"> 修改公钥 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 我的ssh key -->
+
+<script>
+
+    $("#getApiToken").on('click', function(e) {
+        $.get('/api/user/token/', {}, function(data) {
+            $("#token_key").text(data.token);
+        });
+        $("#tokenModal").modal('show');
+    });
+
+    $("#ssh_key_a").on('click', function(e) {
+        $.get('/api/fortress/mysshkey/', {}, function(data) {
+            $("#ssh_key").val(data.ssh_key);
+            if(data.private_key) {
+                $("#downloadKeyButton").show();
+            }
+        });
+        $("#sshkeyModal").modal('show');
+    });
+
+    $("#sshkeyButton").on('click', function(e) {
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要重新生成SSH Key吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var l = Ladda.create( document.querySelector('#sshkeyButton') );
+                        l.start();
+                        $.ajax({
+                            type: 'post',
+                            url: "/api/fortress/createmykey/",
+                            success: function(data) {
+                                $.alert({
+                                    title: '操作成功',
+                                    content: '重新生成SSH Key成功'
+                                });
+                                $("#downloadKeyButton").show();
+                                $("#ssh_key").val(data.ssh_key);
+                                Ladda.stopAll();
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '操作失败',
+                                    content: content
+                                });
+                                Ladda.stopAll();
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    });
+
+    $("#updateSshkeyButton").on('click', function(e) {
+        var ssh_key = $("#ssh_key").val()
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要修改SSH公钥吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        var l = Ladda.create( document.querySelector('#updateSshkeyButton') );
+                        l.start();
+                        $.ajax({
+                            type: 'patch',
+                            url: "/api/fortress/mysshkey/",
+                            data: {ssh_key: ssh_key},
+                            success: function(data) {
+                                $.alert({
+                                    title: '操作成功',
+                                    content: '修改SSH公钥成功'
+                                });
+                                $("#downloadKeyButton").hide();
+                                Ladda.stopAll();
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '操作失败',
+                                    content: content
+                                });
+                                Ladda.stopAll();
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    });
+
+    $("#downloadKeyButton").on('click', function(e) {
+        var l = Ladda.create( document.querySelector('#downloadKeyButton') );
+        l.start();
+        window.open('/api/fortress/downloadkey/', "_self");
+        Ladda.stopAll();
+    });
+
+
+    $("#updateToken").on('click', function(e) {
+        $.confirm({
+            title: 'Confirm!',
+            content: '确定要更新Token吗?',
+            buttons: {
+                confirm: {
+                    text: '确认',
+                    btnClass: 'btn-blue',
+                    action: function () {
+                        $.ajax({
+                            type: 'post',
+                            url: "/api/user/newtoken/",
+                            success: function(data) {
+                                $("#token_key").text(data.token);
+                            },
+                            error: function(data) {
+                                var content = data.responseText;
+                                var json = $.parseJSON(data.responseText);
+                                if(typeof json.detail != 'undefined') content = json.detail;
+                                $.alert({
+                                    title: '更新失败',
+                                    content: content
+                                });
+                            }
+                        })
+                    }
+                },
+                cancel: {
+                    text: '取消',
+                    action: function () {
+                    }
+                }
+            }
+        });
+    });
+
+    $("#changePwdButton").on("click", function(e) {
+        var form = $("#pwdForm").validate({
+            rules: {
+                password_c:{
+                    equalTo: password
+                }
+            },
+            submitHandler: function(form) {
+                $(form).ajaxSubmit({
+                    type: 'patch',
+                    url: "/api/user/changepwd/?format=json",
+                    success: function(data) {
+                        $("#pwdForm").resetForm();
+                        $('#pwdModal').modal('hide');
+                        $.alert({
+                            title: '操作成功',
+                            content: '修改成功'
+                        });
+                    },
+                    error: function(data) {
+                        var content = data.responseText;
+                        var json = $.parseJSON(data.responseText);
+                        if(typeof json.detail != 'undefined') content = json.detail;
+                        $.alert({
+                            title: '操作失败',
+                            content: content
+                        });
+                    }
+                });
+            }
+        });
+        $("#pwdForm").submit();
+    });
+</script>
+

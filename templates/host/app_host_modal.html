@@ -1,0 +1,676 @@
+<!-- 主机授权 -->
+<div class="modal fade" id="authModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">批量授权</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="authForm" action="">
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">用户:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="auth_username" name="username[]" class="form-control required" multiple="multiple" style="width: 100%">
+                        <option value="">用户名</option>
+		            </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">角色:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="auth_role" name="role" class="form-control required">
+                        <option value="">---</option>
+                        {% for r in roles %}
+                        <option value="{{ r.0 }}">{{ r.1 }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">授权天数:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="auth_day" name="day" class="form-control required">
+                        <option value="">---</option>
+                        <option value="30">一个月</option>
+                        <option value="180">半年</option>
+                        <option value="365">一年</option>
+                        <option value="730">两年</option>
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="authSubmit" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 提交 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 主机授权 -->
+
+<!-- 批量挂载 -->
+<div class="modal fade" id="mountModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">批量挂载(原有的服务不变)</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="mountForm">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">目标服务:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="mount_service_id" name="service_id[]" multiple="multiple" class="form-control required" style="width: 100%">
+                        <option value="">请选择服务</option>
+		            </select>
+	            </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="mountButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 批量挂载 -->
+
+<!-- 批量修改状态 -->
+<div class="modal fade" id="changeStateModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">修改状态</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="changeStateForm">
+          <div class="form-group">
+            <div class="row">
+                <div class="col-lg-2" style="text-align: right">
+                    &nbsp;
+	            </div>
+	          	<div class="col-lg-8">
+                    <ul style="width: 100%">
+                        <li style="margin: 10px 10px;">online:在线使用,启用监控</li>
+                        <li style="margin: 10px 10px;">offline:离线维护,禁用监控</li>
+                        <li style="margin: 10px 10px;">free:回收服务器,删除监控,并会将服务器放入资源池</li>
+                        <li style="margin: 10px 10px;">unuse:服务器下线,删除监控,并会将服务器放入unuse资源池</li>
+                        <!-- <li style="margin: 10px 10px;">install:重新装机,只有在资源池的服务器才能重装</li> -->
+                    </ul>
+	            </div>
+            </div>
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">主机状态:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <input type="hidden" name="id" id="change_state_id"/>
+	            	<select id="piliang_change_state" name="state" class="form-control required" style="width: 100%">
+                        <option value="" selected>---</option>
+                        {% for s in state %}
+                        <option value="{{ s.0 }}">{{ s.1 }}</option>
+                        {% endfor %}
+		            </select>
+	            </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="changeStateButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 批量修改状态 -->
+
+
+<!-- 批量修改upstream状态 -->
+<div class="modal fade" id="upstreamStateModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">修改状态</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="changeUpstreamStateForm">
+          <div class="form-group">
+            <div class="row">
+                <div class="col-lg-2" style="text-align: right">
+                    &nbsp;
+	            </div>
+	          	<div class="col-lg-8">
+                    <ul style="width: 100%">
+                        <li style="margin: 10px 10px;">Up:加入Nginx upstream</li>
+                        <li style="margin: 10px 10px;">Down:从upstream删除</li>
+                    </ul>
+	            </div>
+            </div>
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">Upstream状态:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <input type="hidden" name="ip" id="change_upstream_state_ip"/>
+	            	<select id="change_upstream_state" name="state" class="form-control required" style="width: 100%">
+                        <option value="" selected>---</option>
+                        {% for s in upstreamstate %}
+                        <option value="{{ s.0 }}">{{ s.1 }}</option>
+                        {% endfor %}
+		            </select>
+	            </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="changeUpstreamStateButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 批量修改upstream状态 -->
+
+<!-- 批量移动 -->
+<div class="modal fade" id="changeserviceModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">批量移动(会删除原有的服务)</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="changeserviceForm">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">目标服务:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="change_service_id" name="service_id[]" multiple="multiple" class="form-control required" style="width: 100%">
+                        <option value="">请选择服务</option>
+		            </select>
+	            </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="changeserviceButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 批量移动 -->
+
+<!-- 修改主机名 -->
+<div class="modal fade" id="changeHostnameModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">修改主机名</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="changeHostnameForm">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span> <label for="_title" class="control-label">主机名:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <input type="hidden" id="change_hostname_id" name="id"/>
+                    <input type="text" id="change_hostname_hostname" name="hostname" class="form-control required" />
+	            </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="changeHostnameButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 修改主机名 -->
+
+<!-- 修改备注 -->
+<div class="modal fade" id="hostDescModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">修改备注</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="hostDescForm">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span> <label for="_title" class="control-label">备注:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <input type="hidden" id="host_desc_id" name="id"/>
+                    <textarea id="host_description" name="description" rows="3" class="form-control"></textarea>
+	            </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="hostDescButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消 </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 修改备注 -->
+
+
+<!-- 按ip扩容 -->
+<div class="modal fade" id="ipExpansionModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">按IP扩容服务</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="ipExpansionForm">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">IP(多个ip换行):</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <input type="hidden" name="service_id" value="{{ service.id }}"/>
+	            	<textarea rows="7" id="ip_expansion_value" name="ip" class="form-control"></textarea>
+	            </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="ipExpansionButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 按ip扩容 -->
+
+<!-- 自动扩容 -->
+<div class="modal fade" id="autoExpansionModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">服务自动扩容</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="autoExpansionForm">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span> <label for="_title" class="control-label">业务环境:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <select id="auto_env" name="env" class="form-control required">
+                        <option value="">---</option>
+                        {% for e in env %}
+                        <option value="{{ e.0 }}">{{ e.1 }}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="hidden" name="service_id" value="{{ service.id }}"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span> <label for="_title" class="control-label">主机类型:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <select id="auto_type" name="type" class="form-control required">
+                        <option value="">---</option>
+                        {% for e in host_types %}
+                        <option value="{{ e.0 }}">{{ e.1 }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">主机属性:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <select id="auto_attribute" name="attribute" class="form-control">
+                        <option value="">---</option>
+                        {% for e in attribute %}
+                        <option value="{{ e.0 }}">{{ e.1 }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">系统镜像:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <select id="auto_os" name="img_id" class="form-control">
+                        <option value="">---</option>
+                        {% for e in img_list %}
+                        <option value="{{ e.id }}">{{ e.name }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">配置:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <select id="auto_conf" name="conf_id" class="form-control">
+                        <option value="">---</option>
+                        {% for e in confs %}
+                        <option value="{{ e.id }}">{{ e.name }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span> <label for="_title" class="control-label">扩容数量:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <select id="auto_count" name="count" class="form-control required">
+                        <option value="">---</option>
+                        {% for e in count_list %}
+                        <option value="{{ e }}">{{ e }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="autoExpansionButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 自动扩容 -->
+
+<!-- 修改服务信息 -->
+<div class="modal fade" id="updateAppModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">修改服务信息</label></h4>
+      </div>
+      <div class="modal-body">
+        <form id="updateAppForm" action="">
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">服务名称:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id='_name' name="name" class="form-control required"/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">所属应用:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_app_id" name="app_id" class="form-control required">
+                        <option value="">---</option>
+                        {% for l in apps %}
+                        <option value="{{ l.id }}">{{ l.name }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <span style="color:red">* </span><label for="_title" class="control-label">服务类型:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<select id="_type" name="type" class="form-control required">
+                        <option value="">---</option>
+                        {% for t in service_types %}
+                        <option value="{{ t.0 }}">{{ t.1 }}</option>
+                        {% endfor %}
+                    </select>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">备注:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <textarea id="_comment" name="comment" rows="3" class="form-control"></textarea>
+	            </div>
+            </div>
+          </div>
+
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="updateAppSubmit" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 修改服务信息 -->
+
+
+<!-- 按ip缩容 -->
+<div class="modal fade" id="ipReduceModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">按IP缩容服务</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="ipReduceForm">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">IP(多个ip换行):</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <input type="hidden" name="service_id" value="{{ service.id }}"/>
+	            	<textarea rows="7" id="ip_reduce_value" name="ip" class="form-control"></textarea>
+	            </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="ipReduceButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 按ip缩容 -->
+
+
+<!-- 修改主机服务 -->
+<div class="modal fade" id="changeHostServiceModal" tabindex="-2" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="label"><label class="control-label" id="myTitle">修改主机服务</label></h4>
+      </div>
+
+        <div class="modal-body">
+        <form id="changeHostServiceForm">
+          <div class="form-group">
+            <div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">IP:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<input type="text" id="change_host_service_ip" name="ip" class="form-control" readonly/>
+	            </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">已有服务:</label>
+	            </div>
+	            <div class="col-lg-8">
+                    <input type="hidden" name="id" id="change_host_service_host_id"/>
+	            	<select id="change_host_service_id" name="service_id[]" multiple="multiple" class="form-control required" style="width: 100%">
+                        <option value="">请选择服务</option>
+		            </select>
+	            </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" id="changeHostServiceButton" class="btn btn-primary ladda-button" data-style="expand-right"><span class="ladda-label"> 确定 </span></button>
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 取消  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 修改主机服务 -->
+
+
+<!-- 变更日志 -->
+<div class="modal fade" id="changeLogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+          <iframe id="changeLogIFrame" width="100%" height="750px;" style="border:0;" src=""></iframe>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 变更日志 -->
+
+
+<!-- 查看密码 -->
+<div class="modal fade" id="hostpwdModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel"><label class="control-label" id="myTitle">查看密码</label></h4>
+      </div>
+      <div class="modal-body">
+          <div class="form-group">
+          	<div class="row">
+	          	<div class="col-lg-3" style="text-align: right">
+		            <label for="_title" class="control-label">密码:</label>
+	            </div>
+	            <div class="col-lg-8">
+	            	<strong><div id="host_password"></div></strong>
+	            </div>
+            </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"> 关闭  </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 查看密码 -->
+
+<!-- 负载均衡 -->
+<div id="lb_modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              </div>
+            <div class="modal-body">
+                <iframe id="lb_iframe" src="/lb/lbservice/?service_id={{ service.id }}" width="100%" height="100%" style="border: 0px;"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 负载均衡 -->
