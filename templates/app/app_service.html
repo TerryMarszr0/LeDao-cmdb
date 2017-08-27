@@ -173,17 +173,6 @@
             </div>
           </div>
 
-          <div class="form-group" id="vcs_rep">
-          	<div class="row">
-	          	<div class="col-lg-3" style="text-align: right">
-		            <label for="_title" class="control-label">Git仓库:</label>
-	            </div>
-	            <div class="col-lg-8">
-                    <input type="text" id='vcsRep' name="vcs_rep" class="form-control"/>
-	            </div>
-            </div>
-          </div>
-
 {# ###################################################负责人的多选框############################################ #}
           <div class="form-group">
           	<div class="row">
@@ -198,19 +187,6 @@
             </div>
           </div>
 {# #################################################################################################################### #}
-          <div class="form-group">
-          	<div class="row">
-	          	<div class="col-lg-3" style="text-align: right">
-		            <label for="_title" class="control-label"></label>
-	            </div>
-	            <div class="col-lg-8">
-                    <div id="my_input" class="dan-table-menu form form-inline" >
-	            	    <input type="checkbox" id='auto' name="auto" class="form-control"/> 添加到Auto
-                    </div>
-	            </div>
-            </div>
-          </div>
-
         </form>
       </div>
       <div class="modal-footer">
@@ -278,17 +254,6 @@
 	            </div>
 	            <div class="col-lg-8">
                     <textarea id="_comment" name="comment" rows="3" class="form-control"></textarea>
-	            </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-          	<div class="row">
-	          	<div class="col-lg-3" style="text-align: right">
-		            <label for="_title" class="control-label">Git仓库:</label>
-	            </div>
-	            <div class="col-lg-8">
-                    <input type="text" id='_vcsRep' name="vcs_rep" class="form-control"/>
 	            </div>
             </div>
           </div>
@@ -363,38 +328,6 @@ $(".searchForm").bind('keydown', function (e) {
         $('#my_table').bootstrapTable("refresh");
         return false;
     }
-});
-
-$.getJSON('{{ cmdb_url }}/api/public/gitrepo/?format=json', function(data){
-    var results = data;
-    var lists = [];
-    lists.push({text: '---', value: ''});
-    for(var i = 0 in results) {
-        var row = results[i];
-        //t = {text: row.ssh_url_to_repo, value: row.ssh_url_to_repo};
-        //lists.push(t);
-        lists.push(row.ssh_url_to_repo);
-    }
-    $("#vcsRep").autocomplete({
-        zIndex: 9999,
-        source: lists
-    });
-});
-
-$.getJSON('{{ cmdb_url }}/api/public/gitrepo/?format=json', function(data){
-    var results = data;
-    var lists = [];
-    lists.push({text: '---', value: ''});
-    for(var i = 0 in results) {
-        var row = results[i];
-        //t = {text: row.ssh_url_to_repo, value: row.ssh_url_to_repo};
-        //lists.push(t);
-        lists.push(row.ssh_url_to_repo);
-    }
-    $("#_vcsRep").autocomplete({
-        zIndex: 9999,
-        source: lists
-    });
 });
 
 initCombobox({
@@ -488,7 +421,6 @@ window.actionEvents = {
         $("#_name").val(name);
         $("#_type").val(type);
         $("#_comment").val(comment);
-        $("#_vcsRep").val(row['vcs_rep']);
         $("#_state").val(row['state']);
 
         initCombobox({

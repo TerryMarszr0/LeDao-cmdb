@@ -15,7 +15,7 @@ class Hosts(models.Model):
     )
 
     HOST_TYPE_CHOICES = (
-        ('aliyun', 'aliyun'),
+        # ('aliyun', 'aliyun'),
         ('server', 'server'),
         ('net', 'net'),
         ('vm', 'vm'),
@@ -24,9 +24,9 @@ class Hosts(models.Model):
     )
 
     HOST_ATTRIBUTE_CHOCIES = (
-        ('ECS','ECS'),
-        ('SLB','SLB'),
-        ('RDS','RDS'),
+        # ('ECS','ECS'),
+        # ('SLB','SLB'),
+        # ('RDS','RDS'),
         ('server','server'),
         ('kvmparent','kvmparent'),
         ('xenparent','xenparent'),
@@ -55,7 +55,7 @@ class Hosts(models.Model):
         ('online', 'online'),
         ('offline', 'offline'),
         ('free', 'free'),
-        ('unuse', 'unuse'),
+        # ('unuse', 'unuse'),
         # ('install', 'install'),
         # ('broken', 'broken'),
     )

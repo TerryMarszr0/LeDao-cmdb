@@ -137,8 +137,6 @@ class HostValidate():
                 host['service_id'] = configs.FREE_SERVER_ID
             elif type == 'vm':
                 host['service_id'] = configs.FREE_VM_ID
-            elif type == 'aliyun':
-                host['service_id'] = configs.FREE_ALIYUN_ID
             else:
                 host['service_id'] = 0
         if kwargs.has_key('parent_ip') and kwargs['parent_ip']:
@@ -149,7 +147,7 @@ class HostValidate():
                 return False, 'no this server:' + str(kwargs['parent_ip'])
             host['pid'] = host[0].id
         host['state'] = 'offline'
-        if host['service_id'] in (configs.FREE_SERVER_ID, configs.FREE_VM_ID, configs.FREE_ALIYUN_ID):
+        if host['service_id'] in (configs.FREE_SERVER_ID, configs.FREE_VM_ID):
             host['state'] = 'free'
         host['ctime'] = int(time.time())
         return True, host

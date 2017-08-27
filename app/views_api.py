@@ -469,7 +469,7 @@ class AppServiceList(CmdbListCreateAPIView):
         if len(ServiceHost.objects.filter(service_id__in=id_list)) > 0:
             raise APIValidateException(u'服务下还有设备,不能删除')
         for id in id_list:
-            if id in (configs.FREE_ALIYUN_ID, configs.FREE_VM_ID, configs.FREE_SERVER_ID, configs.FREE_UNUSE):
+            if id in (configs.FREE_VM_ID, configs.FREE_SERVER_ID):
                 raise APIValidateException(u'服务属于资源池,不能删除')
         services = AppService.objects.filter(id__in=id_list)
         uid = str(uuid.uuid1())
@@ -502,7 +502,7 @@ class AppServiceDetail(CmdbRetrieveUpdateDestroyAPIView):
     @transaction.atomic()
     def perform_destroy(self, instance):
         id = instance.id
-        if id in (configs.FREE_ALIYUN_ID, configs.FREE_VM_ID, configs.FREE_SERVER_ID, configs.FREE_UNUSE):
+        if id in (configs.FREE_VM_ID, configs.FREE_SERVER_ID):
             raise APIValidateException(u'服务 ' + instance.name + u' 属于资源池,不能删除')
         if len(ServiceHost.objects.filter(service_id=id)) > 0:
             raise APIValidateException(u'服务 ' + instance.name + u' 下还有设备,不能删除')
@@ -566,7 +566,7 @@ class ServiceScaleOutByIp(CmdbListCreateAPIView):
 
         # if len(Hosts.objects.filter(ip__in=ip_list).exclude(state='free')) > 0:
         #     raise APIValidateException(u'只能扩容free状态的主机')
-        resource_pool_list = (configs.FREE_ALIYUN_ID, configs.FREE_VM_ID, configs.FREE_SERVER_ID, configs.FREE_UNUSE)
+        resource_pool_list = (configs.FREE_VM_ID, configs.FREE_SERVER_ID)
         if service_id in resource_pool_list:
             raise APIValidateException(u'资源池不能扩容')
         uid = str(uuid.uuid1())
@@ -669,7 +669,7 @@ class ServiceAutoScaleOut(CmdbListCreateAPIView):
             conf_id = conf[0].id
 
         count = int(count)
-        if service_id in (configs.FREE_ALIYUN_ID, configs.FREE_VM_ID, configs.FREE_SERVER_ID):
+        if service_id in (configs.FREE_VM_ID, configs.FREE_SERVER_ID):
             raise APIValidateException(u'资源池不能自动扩容')
         if len(AppService.objects.filter(id=service_id)) <= 0:
             raise APIValidateException(u'服务不存在')
@@ -678,8 +678,6 @@ class ServiceAutoScaleOut(CmdbListCreateAPIView):
             resource_service_id = configs.FREE_SERVER_ID
         elif type == 'vm':
             resource_service_id = configs.FREE_VM_ID
-        elif type == 'aliyun':
-            resource_service_id = configs.FREE_ALIYUN_ID
         hostids = []
         for s in ServiceHost.objects.filter(service_id=resource_service_id):
             hostids.append(s.host_id)
@@ -746,7 +744,7 @@ class ServiceGroupList(CmdbListCreateAPIView):
     def list(self, request, *args, **kwargs):
         results = []
         name_list = []
-        for a in AppService.objects.all().exclude(id__in=(configs.FREE_UNUSE, configs.FREE_ALIYUN_ID, configs.FREE_SERVER_ID, configs.FREE_VM_ID)):
+        for a in AppService.objects.all().exclude(id__in=(configs.FREE_SERVER_ID, configs.FREE_VM_ID)):
             name_list.append(a.name.split("_")[0])
         for n in list(set(name_list)):
             results.append({"name": n})
@@ -791,7 +789,7 @@ class ServiceReduceByIp(CmdbListCreateAPIView):
 
         # if len(Hosts.objects.filter(ip__in=ip_list).exclude(state='free')) > 0:
         #     raise APIValidateException(u'只能扩容free状态的主机')
-        resource_pool_list = (configs.FREE_ALIYUN_ID, configs.FREE_VM_ID, configs.FREE_SERVER_ID, configs.FREE_UNUSE)
+        resource_pool_list = (configs.FREE_VM_ID, configs.FREE_SERVER_ID)
         if service_id in resource_pool_list:
             raise APIValidateException(u'资源池不能缩容')
         uid = str(uuid.uuid1())
@@ -804,7 +802,7 @@ class ServiceReduceByIp(CmdbListCreateAPIView):
             ServiceHost.objects.filter(service_id=service_id, host_id=h.id).delete()
             # 如果机器不属于任何服务则放入资源池中
             if len(ServiceHost.objects.filter(host_id=h.id)) <= 0:
-                sid = configs.FREE_ALIYUN_ID
+                sid = configs.FREE_SERVER_ID
                 if h.type == 'server':
                     sid = configs.FREE_SERVER_ID
                 elif h.type == 'vm':

@@ -44,7 +44,7 @@ class ServiceHostsList(CmdbListCreateAPIView):
     ● instance_id               ——   实例id
     ● sn                        ——   序列号
     ● type                      ——   主机类型(server, vm, net, aliyun, storage)
-    ● attribute                 ——   属性(ECS, RDS, SLB, server, xen, switch, xenparent, dockerparent, docker, route, firewall, storage)
+    ● attribute                 ——   属性(server, xen, switch, xenparent, dockerparent, docker, route, firewall, storage)
     ● service_id                ——   服务id
     ● service_id[]              ——   服务id列表
     ● service_name              ——   服务名称
@@ -291,11 +291,9 @@ class HostsList(CmdbListCreateAPIView):
             service_id = configs.FREE_SERVER_ID
         elif type == 'vm':
             service_id = configs.FREE_VM_ID
-        elif type == 'aliyun':
-            service_id = configs.FREE_ALIYUN_ID
         else:
             service_id = 0
-        free_list = (configs.FREE_SERVER_ID, configs.FREE_VM_ID, configs.FREE_ALIYUN_ID)
+        free_list = (configs.FREE_SERVER_ID, configs.FREE_VM_ID)
         for sid in service_ids:
             if sid in free_list:
                 raise APIValidateException(u'不能选择资源池')
@@ -753,7 +751,7 @@ class ChangeHostState(CmdbListCreateAPIView):
         host_list = Hosts.objects.filter(id__in=id_list)
         uid = str(uuid.uuid1())
         for h in host_list:
-            if h.service_id in (configs.FREE_SERVER_ID, configs.FREE_VM_ID, configs.FREE_ALIYUN_ID) and state not in ('free', 'unuse'):
+            if h.service_id in (configs.FREE_SERVER_ID, configs.FREE_VM_ID) and state not in ('free', 'unuse'):
                 raise APIValidateException(u'资源池中的机器只能改为free或unuse状态')
             if state == 'free':
                 service_id = 0
@@ -761,8 +759,6 @@ class ChangeHostState(CmdbListCreateAPIView):
                     service_id = configs.FREE_SERVER_ID
                 elif h.type == 'vm':
                     service_id = configs.FREE_VM_ID
-                elif h.type == 'aliyun':
-                    service_id = configs.FREE_ALIYUN_ID
                 self.changeLog(h.id, h.ip, 'change host state from ' + h.state + ' to ' + state + ' and change service_id from ' + str(h.service_id) + ' to ' + str(service_id), uid=uid)
             else:
                 self.changeLog(h.id, h.ip, 'change host state from ' + h.state + ' to ' + state, uid=uid)
@@ -773,16 +769,9 @@ class ChangeHostState(CmdbListCreateAPIView):
                     service_id = configs.FREE_SERVER_ID
                 elif h.type == 'vm':
                     service_id = configs.FREE_VM_ID
-                elif h.type == 'aliyun':
-                    service_id = configs.FREE_ALIYUN_ID
                 Hosts.objects.filter(id=h.id).update(service_id=service_id, state=state)
                 ServiceHost.objects.filter(host_id=h.id).delete()
                 ServiceHost.objects.create(host_id=h.id, service_id=service_id)
-        elif state == 'unuse':
-            for h in host_list:
-                ServiceHost.objects.filter(host_id=h.id).delete()
-                Hosts.objects.filter(id=h.id).update(service_id=configs.FREE_UNUSE, state=state)
-                ServiceHost.objects.create(host_id=h.id, service_id=configs.FREE_UNUSE)
         else:
             host_list.update(state=state)
         for h in host_list:
@@ -850,11 +839,11 @@ class ChangeHostService(CmdbListCreateAPIView):
         ServiceHost.objects.filter(host_id__in=id_list).delete()
         for service in service_list:
             for h in host_list:
-                if service.id in (configs.FREE_ALIYUN_ID, configs.FREE_VM_ID, configs.FREE_SERVER_ID):
+                if service.id in (configs.FREE_VM_ID, configs.FREE_SERVER_ID):
                     self.changeLog(h.id, h.ip, 'change host service_id from ' + str(h.service_id) + ' to ' + str(service.id) + ' and change host state from ' + h.state + ' to free', uid=uid)
                 else:
                     self.changeLog(h.id, h.ip, 'change host service_id from ' + str(h.service_id) + ' to ' + str(service.id), uid=uid)
-            if service.id in (configs.FREE_ALIYUN_ID, configs.FREE_VM_ID, configs.FREE_SERVER_ID, configs.FREE_UNUSE):
+            if service.id in (configs.FREE_VM_ID, configs.FREE_SERVER_ID):
                 raise APIValidateException(u'不能移动到资源池,请把主机状态改为free')
             # 将主机移动到指定服务下
             for hid in id_list:
@@ -916,14 +905,14 @@ class MountHostService(CmdbListCreateAPIView):
             raise APIValidateException(u'不能挂载online状态的主机')
         host_list = Hosts.objects.filter(id__in=id_list)
         uid = str(uuid.uuid1())
-        free_service_list = (configs.FREE_ALIYUN_ID, configs.FREE_VM_ID, configs.FREE_SERVER_ID, configs.FREE_UNUSE)
+        free_service_list = (configs.FREE_VM_ID, configs.FREE_SERVER_ID)
 
         # 将主机从资源池中删除
         ServiceHost.objects.filter(service_id__in=free_service_list, host_id__in=id_list).delete()
 
         for service in service_list:
             for h in host_list:
-                if service.id in (configs.FREE_ALIYUN_ID, configs.FREE_VM_ID, configs.FREE_SERVER_ID):
+                if service.id in (configs.FREE_VM_ID, configs.FREE_SERVER_ID):
                     self.changeLog(h.id, h.ip, 'change host service_id from ' + str(h.service_id) + ' to ' + str(service.id) + ' and change host state from ' + h.state + ' to free', uid=uid)
                 else:
                     self.changeLog(h.id, h.ip, 'change host service_id from ' + str(h.service_id) + ' to ' + str(service.id), uid=uid)

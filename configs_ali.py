@@ -29,8 +29,6 @@ EMAIL_SSL = False
 RESOURCE_POOL_ID = 1
 FREE_SERVER_ID = 1
 FREE_VM_ID = 2
-FREE_ALIYUN_ID = 3
-FREE_UNUSE = 4
 
 ########################## resource pool ##########################
 
