@@ -177,8 +177,6 @@ class ServiceLBList(CmdbListCreateAPIView):
     ● proxy_path                ——   转发路径
     ● type                      ——   负载均衡算法(wrr,ip_hash)(必需)
     ● backend_port              ——   后端端口(必需)
-    ● max_fails                 ——   max_fails(必需)
-    ● fail_timeout              ——   fail_timeout(必需)
     ● location_parameter        ——   location参数
     ● lb                        ——   负载均衡器,参数如下(无需输入)
 
@@ -203,7 +201,7 @@ class ServiceLBList(CmdbListCreateAPIView):
     paginate_by = None
     queryset = ServiceLB.objects.all()
     filter_fields = ('lb_id', 'service_id')
-    search_fields = ('location_parameter', 'path')
+    search_fields = ('location_parameter', 'path', 'proxy_path')
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter,)
     serializer_class = ServiceLBSerializer
 
@@ -304,24 +302,24 @@ class ServiceLBList(CmdbListCreateAPIView):
         ########################### 推送配置文件 ###########################
         state, output = ssh_push_conf(appservice[0].name, env)
         if not state:
-            raise APIValidateException(output)
+            raise APIValidateException(u"新增成功,同步配置文件失败:" + output)
         ########################### 推送配置文件 ###########################
 
     # 批量删除
-    @transaction.atomic()
-    def delete(self, request, *args, **kwargs):
-        id_list = request.data.getlist('id[]', [])
-        id = request.data.get('id', '')
-        if id:
-            id_list = id_list + id.split(",")
-        if len(id_list) <= 0:
-            raise APIValidateException(u'参数id[]和id不能都为空')
-        servicelblist = ServiceLB.objects.filter(id__in=id_list)
-        uid = str(uuid.uuid1())
-        for a in servicelblist:
-            self.changeLog(a.id, a.path, 'delete location: ' + a.path, uid=uid)
-        servicelblist.delete()
-        return Response({"success": True, "msg": "succ!", "errors": []})
+    # @transaction.atomic()
+    # def delete(self, request, *args, **kwargs):
+    #     id_list = request.data.getlist('id[]', [])
+    #     id = request.data.get('id', '')
+    #     if id:
+    #         id_list = id_list + id.split(",")
+    #     if len(id_list) <= 0:
+    #         raise APIValidateException(u'参数id[]和id不能都为空')
+    #     servicelblist = ServiceLB.objects.filter(id__in=id_list)
+    #     uid = str(uuid.uuid1())
+    #     for a in servicelblist:
+    #         self.changeLog(a.id, a.path, 'delete location: ' + a.path, uid=uid)
+    #     servicelblist.delete()
+    #     return Response({"success": True, "msg": "succ!", "errors": []})
 
 
 class ServiceLBDetail(CmdbRetrieveUpdateDestroyAPIView):
@@ -377,6 +375,20 @@ class ServiceLBDetail(CmdbRetrieveUpdateDestroyAPIView):
         instance.delete()
         self.changeLog(instance.id, instance.path, 'delete location: ' + instance.path)
 
+        lb = LB.objects.filter(id=instance.lb_id)
+        if len(lb) <= 0:
+            raise APIValidateException(u"删除成功,同步配置文件失败:负载均衡器不存在")
+        lb = lb[0]
+        lb_service_id = lb.lb_service_id
+        appservice = AppService.objects.filter(id=lb_service_id)
+        if len(appservice) <= 0:
+            raise APIValidateException(u'删除成功,同步配置文件失败:Nginx集群服务不存在')
+        ########################### 推送配置文件 ###########################
+        state, output = ssh_push_conf(appservice[0].name, lb.env)
+        if not state:
+            raise APIValidateException(u"修改成功,同步配置文件失败:" + output)
+        ########################### 推送配置文件 ###########################
+
     @transaction.atomic()
     def update_servicelb(self, serializer):
         user = self.request.user.username
@@ -427,7 +439,7 @@ class ServiceLBDetail(CmdbRetrieveUpdateDestroyAPIView):
         ########################### 推送配置文件 ###########################
         state, output = ssh_push_conf(appservice[0].name, env)
         if not state:
-            raise APIValidateException(output)
+            raise APIValidateException(u"修改成功,同步配置文件失败:" + output)
         ########################### 推送配置文件 ###########################
 
 class NginxConf(CmdbRetrieveUpdateDestroyAPIView):

@@ -254,20 +254,17 @@
                                 <span class="glyphicon glyphicon-refresh"></span> 刷新
                               </button>
                             {% if user.is_superuser == 1 or user.is_staff == 1%}
+                            <!--
                             <button type="button" id="delete" class="btn btn-sm btn-danger disabled">
                                 <span class="glyphicon glyphicon-remove"></span> 删除
                             </button>
+                            -->
                             {% endif %}
                         </div>
                     </div>
                     <div class="form-group">
                         <form class="my-form">
-                            <input name="domain" type="text" class="form-control searchForm" placeholder="域名" >
-                        </form>
-                    </div>
-                    <div class="form-group">
-                        <form class="my-form">
-                            <input name="location" type="text" class="form-control searchForm" placeholder="路径(app name)" >
+                            <input name="location" type="text" class="form-control searchForm" placeholder="路径" >
                         </form>
                     </div>
                     <div style="text-align: left;">
@@ -279,7 +276,7 @@
         </div>
     </div>
 
-    <!-- 变更日志 -->
+<!-- 变更日志 -->
 <div class="modal fade" id="changeLogModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content">
@@ -309,6 +306,17 @@ initCombobox({
             lists.push(t);
         }
         return lists;
+    }
+});
+
+$(".searchForm").on("change", function(e) {
+    $('#my_table').bootstrapTable("refresh");
+});
+$(".searchForm").bind('keydown', function (e) {
+    var key = e.which;
+    if (key == 13) {
+        $('#my_table').bootstrapTable("refresh");
+        return false;
     }
 });
 
@@ -567,6 +575,7 @@ $("#createButton").on("click", function(e) {
                         title: '新增失败',
                         content: content
                     });
+                    $('#my_table').bootstrapTable("refresh");
                 }
             });
         }
@@ -598,6 +607,7 @@ $("#updateButton").on("click", function(e) {
                         title: '修改失败',
                         content: content
                     });
+                    $('#my_table').bootstrapTable("refresh");
                 }
             });
         }
@@ -637,6 +647,7 @@ $("#delete").on("click", function(e) {
                                     title: '删除失败',
                                     content: content
                                 });
+                                $('#my_table').bootstrapTable("refresh");
                             }
                         })
                     }
