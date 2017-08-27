@@ -1,0 +1,8 @@
+*.pyc
+migrations
+.idea
+.DS_Store
+*.rdb
+configs.py
+settings.py
+
