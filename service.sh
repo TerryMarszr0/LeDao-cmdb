@@ -2,7 +2,7 @@
 #!/bin/bash
 source /etc/profile
 homedir="/home/deploy"
-ENV="xxx"
+ENV=$2
 app_flag="cmdb_$ENV"
 str=$"/n"  
 

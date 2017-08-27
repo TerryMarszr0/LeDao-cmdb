@@ -14,7 +14,6 @@ from rest_framework import filters
 from rest_framework import status
 from rest_framework.response import Response
 
-from app.auto.autoapi import AutoApi
 from app.models import AppService, App, AppSegment, Group, AppPrincipals, ServicePrincipals, ServiceResource
 from app.models import ServiceHost
 from app.serializers import AppServiceSerializer, AppSerializer, GroupSerializer, AppPrincipalsSerializer, \
@@ -187,8 +186,6 @@ class AppList(CmdbListCreateAPIView):
         obj_dict['segment'] = segment.split("\n")
         json_obj = json.dumps(obj_dict)
         self.changeLog(obj.id, obj.name, json_obj)
-        if auto == 'on':
-            AutoApi().addProject(obj.name, obj.cname, obj.comment)
 
         # 增添负责人信息
         users = self.request.data.getlist("user_name[]", [])
@@ -324,7 +321,6 @@ class AppDetail(CmdbRetrieveUpdateDestroyAPIView):
         obj_dict['segment'] = segment.split("\n")
         json_obj = json.dumps(obj_dict)
         self.changeLog(obj.id, obj.name, json_obj)
-        AutoApi().updateProject(oldname, obj.name, obj.cname, obj.comment)
 
 class AppServiceList(CmdbListCreateAPIView):
     """
@@ -402,22 +398,6 @@ class AppServiceList(CmdbListCreateAPIView):
         obj = serializer.save()
         json_obj = json.dumps(model_to_dict(obj))
         self.changeLog(obj.id, obj.name, json_obj)
-        normalType = None
-        if type in ('java', 'tomcat', 'dubbo'):
-            normalType = 'java'
-        elif type == 'static':
-            normalType = 'webresource'
-        elif type == 'php':
-            normalType = 'php'
-        elif type == 'nodejs':
-            normalType = 'nodejs'
-        elif type == 'python':
-            normalType = 'python'
-
-        if auto == "on":
-            apps = App.objects.filter(id=obj.app_id)
-            if len(apps) > 0:
-                AutoApi().addTemplate(obj.name, apps[0].name, obj.name, obj.id, vcsRep, normalType)
 
         # 添加负责人信息
         principals_list = self.request.data.getlist('user_name[]',[])
@@ -540,8 +520,6 @@ class AppServiceDetail(CmdbRetrieveUpdateDestroyAPIView):
         json_obj = json.dumps(model_to_dict(obj))
         self.changeLog(obj.id, obj.name, json_obj)
         apps = App.objects.filter(id=obj.app_id)
-        if len(apps) > 0:
-            AutoApi().updateTemplate(obj.name, apps[0].name, obj.name, obj.id, vcsRep)
 
         principals_list = self.request.data.getlist('user_name[]')
         service_principals = ServicePrincipals.objects.filter(service_id=obj.id)     # 删除旧数据
