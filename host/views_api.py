@@ -748,6 +748,9 @@ class ChangeHostState(CmdbListCreateAPIView):
             id_list += id.split(",")
         if state not in state_list:
             raise APIValidateException(u'state必须为 ' + " ".join(state_list) + u' 中的一个')
+        uphost = ServiceHost.objects.filter(host_id__in=id_list, state='Up')
+        if len(uphost) > 0 and state in ('free', 'unuse', 'offline'):
+            raise APIValidateException(u'有upstream状态为p的主机,不能改为' + state + u'状态')
         host_list = Hosts.objects.filter(id__in=id_list)
         uid = str(uuid.uuid1())
         for h in host_list:

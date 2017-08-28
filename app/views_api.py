@@ -798,6 +798,8 @@ class ServiceReduceByIp(CmdbListCreateAPIView):
         for h in hosts:
             hostids.append(h.id)
             self.changeLog(h.id, h.ip, 'reduce from service_id ' + str(h.service_id), uid=uid, action='update')
+        if len(ServiceHost.objects.filter(service_id=service_id, host_id__in=hostids, state='Up')) > 0:
+            raise APIValidateException(u'存在upstream状态为Up的主机')
         for h in hosts:
             ServiceHost.objects.filter(service_id=service_id, host_id=h.id).delete()
             # 如果机器不属于任何服务则放入资源池中
