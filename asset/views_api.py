@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import time, json, uuid
 from rest_framework import filters
-from asset.models import Room, Rack, AssetModel, Conf, Network, IpAddress
+from asset.models import Room, Rack, AssetModel, Conf, Network, IpAddress, RackU
 from asset.serializers import RoomSerializer, RackSerializer, AssetModelSerializer, ConfSerializer, NetworkSerializer, IpAddressSerializer
 from rest_framework.response import Response
 from public.base_exception import APIValidateException
@@ -137,7 +137,7 @@ class RackList(CmdbListCreateAPIView):
     queryset = Rack.objects.all()
 
     filter_fields = ('name', 'state')
-    search_fields = ('name', 'room__name')
+    search_fields = ('name', 'comment')
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, )
     serializer_class = RackSerializer
 
@@ -154,8 +154,34 @@ class RackList(CmdbListCreateAPIView):
     def perform_create(self, serializer):
         current_time = int(time.time())
         obj = serializer.save(ctime=current_time)
+        for i in range(1, obj.height + 1):
+            RackU.objects.create(rack_id=obj.id, uid=i, host_id=0)
         json_obj = json.dumps(model_to_dict(obj))
         self.changeLog(obj.id, obj.name, json_obj)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+        else:
+            serializer = self.get_serializer(queryset, many=True)
+        room_dict = {}
+        for r in Room.objects.all():
+            room_dict[r.id] = r.name
+        type_dict = {}
+        for t in Rack.TYPE:
+            type_dict[t[0]] = t[1]
+        results = []
+        for d in serializer.data:
+            t = d
+            t['room_name'] = room_dict.get(t['room_id'], '')
+            t['type_name'] = type_dict.get(t['type'], '')
+            results.append(t)
+
+        if page is not None:
+            return self.get_paginated_response(results)
+        return Response(results)
 
 
 class RackDetail(CmdbRetrieveUpdateDestroyAPIView):
@@ -178,12 +204,19 @@ class RackDetail(CmdbRetrieveUpdateDestroyAPIView):
 
     @transaction.atomic()
     def perform_destroy(self, instance):
+        RackU.objects.filter(rack_id=instance.id).delete()
         instance.delete()
         self.changeLog(id, instance.name, 'delete rack: ' + instance.name)
 
     @transaction.atomic()
     def perform_update(self, serializer):
         obj = serializer.save()
+        u = RackU.objects.filter(rack_id=obj.id)
+        if len(u) < obj.height:
+            for i in range(len(u) + 1, obj.height + 1):
+                RackU.objects.create(rack_id=obj.id, uid=i, host_id=0)
+        if len(u) > obj.height:
+            RackU.objects.filter(uid__gt=obj.height).delete()
         json_obj = json.dumps(model_to_dict(obj))
         self.changeLog(obj.id, obj.name, json_obj)
 
@@ -467,9 +500,12 @@ class NetworkList(CmdbListCreateAPIView):
         obj = serializer.save(ctime=current_time)
         json_obj = json.dumps(model_to_dict(obj))
         ip_segment = obj.network + "/" + str(obj.maskint)
-        for ip in IP(ip_segment):
+        iplist = IP(ip_segment)
+        i = 0
+        for ip in iplist:
+            i += 1
             state = 'free'
-            if str(ip).endswith(".0"):
+            if str(ip).endswith(".0") or i == len(iplist) or str(ip) == str(gateway):
                 state = 'reserve'
             IpAddress.objects.create(network_id=obj.id, ip=ip, ctime=current_time, state=state)
         self.changeLog(obj.id, obj.network, json_obj)

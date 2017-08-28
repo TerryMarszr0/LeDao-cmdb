@@ -13,6 +13,9 @@ urlpatterns = [
     # 机房管理
     url(r'^room/$', views.RoomPageView.as_view(), name='room'),
 
+    # 机房管理
+    url(r'^room/rack/$', views.RackPageView.as_view()),
+
     # 网段管理
     url(r'^network/$', views.NetworkPageView.as_view()),
     url(r'^ipaddress/$', views.IpAddressPageView.as_view()),

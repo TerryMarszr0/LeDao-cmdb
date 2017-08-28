@@ -28,8 +28,8 @@ class Room(models.Model):
 
 class Rack(models.Model):
     TYPE = (
-        (0, '刀片笼子'),
-        (1, '机柜'),
+        (0, u'刀片笼子'),
+        (1, u'机柜'),
     )
     STATE = (
         ('online', 'online'),
@@ -39,13 +39,22 @@ class Rack(models.Model):
     name = models.CharField(db_column='name', max_length=100, null=True, default='')
     height = models.IntegerField(db_column='height', default=24, null=True)
     type = models.IntegerField(db_column='type', null=True, default=1, choices=TYPE)
-    room_id = models.IntegerField(Room, db_column='room_id', null=True, default=0)
+    room_id = models.IntegerField(null=True, default=0)
     comment = models.CharField(db_column='comment', max_length=255, null=True, default='')
     state = models.CharField(db_column='state', max_length=30, choices=STATE, null=True, default='')
     ctime = models.IntegerField(db_column='ctime', null=True, default=0)
 
     class Meta:
         db_table = 'asset_rack'
+
+class RackU(models.Model):
+    id = models.AutoField(primary_key=True)
+    rack_id = models.IntegerField(default=0, null=False)
+    uid = models.IntegerField(default=1, null=False)
+    host_id = models.IntegerField(default=0, null=False)
+
+    class Meta:
+        db_table = 'asset_rack_u'
 
 class AssetModel(models.Model):
     id = models.AutoField(db_column='id', primary_key=True)

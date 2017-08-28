@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from public.base import PublicView
-from asset.models import Room
+from asset.models import Room, Rack
 from host.models import Hosts
 
 class AssetModelPageView(PublicView):
@@ -26,6 +26,19 @@ class RoomPageView(PublicView):
         context['header_title'] = u'查看机房'
         context['path1'] = u'资产管理'
         context['path2'] = u'查看机房'
+        return context
+
+class RackPageView(PublicView):
+    template_name = 'asset/rack.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(RackPageView, self).get_context_data(**kwargs)
+        context['state'] = Rack.STATE
+        context['type'] = Rack.TYPE
+        context['room'] = Room.objects.all()
+        context['header_title'] = u'查看机柜'
+        context['path1'] = u'资产管理'
+        context['path2'] = u'查看机柜'
         return context
 
 class NetworkPageView(PublicView):
